@@ -5,18 +5,18 @@ import java.util.ArrayList;
 
 public class User {
 
-    private String id;
+    private String userId;
     private String name;
     private String firstName;
     private String lastName;
     private String authToken;
 
     public String getId() {
-        return id;
+        return userId;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.userId = userId;
     }
 
     public String getName() {
