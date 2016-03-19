@@ -11,11 +11,11 @@ public class User {
     private String lastName;
     private String authToken;
 
-    public String getId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setId(String id) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -49,5 +49,16 @@ public class User {
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", authToken='" + authToken + '\'' +
+                '}';
     }
 }

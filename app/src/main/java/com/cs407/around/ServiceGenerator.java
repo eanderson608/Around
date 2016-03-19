@@ -10,7 +10,7 @@ Created by patron on 3/19/16
 
 public class ServiceGenerator {
 
-    public static final String API_BASE_URL = "http://your.api-base.url";
+    public static final String API_BASE_URL = "http://eanderson608.ddns.net/";
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
