@@ -5,11 +5,14 @@ import java.util.ArrayList;
 
 public class User {
 
+    private String _id;
     private String userId;
     private String name;
     private String firstName;
     private String lastName;
     private String authToken;
+
+    public String get_id() { return _id; }
 
     public String getUserId() {
         return userId;
@@ -54,7 +57,8 @@ public class User {
     @Override
     public String toString() {
         return "{" +
-                "userId='" + userId + '\'' +
+                "_id='" + _id + '\'' +
+                ", userId='" + userId + '\'' +
                 ", name='" + name + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
