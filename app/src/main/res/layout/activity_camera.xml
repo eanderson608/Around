@@ -11,4 +11,17 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.cs407.around.CameraActivity">
 
+    <SurfaceView
+        android:id="@+id/camera_surface_view"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="capture"
+        android:onClick="captureImage" />
+
 </RelativeLayout>
+

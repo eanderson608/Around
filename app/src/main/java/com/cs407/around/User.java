@@ -11,8 +11,16 @@ public class User {
     private String firstName;
     private String lastName;
     private String authToken;
+    private String userImageUrl;
 
-    public String get_id() { return _id; }
+
+    public String getUserProfilePic() {
+        return userImageUrl;
+    }
+
+    public void setUserProfilePic(String userImageUrl) {
+        this.userImageUrl = userImageUrl;
+    }
 
     public String getUserId() {
         return userId;
@@ -63,6 +71,7 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", authToken='" + authToken + '\'' +
+                ", userImageUrl='" + userImageUrl + '\'' +
                 '}';
     }
 }

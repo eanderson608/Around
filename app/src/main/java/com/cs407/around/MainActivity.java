@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.CallbackManager;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     me.setFirstName(profile.getFirstName());
                     me.setLastName(profile.getLastName());
                     me.setName(profile.getName());
+                    me.setUserProfilePic(profile.getProfilePictureUri(300, 300).toString());
                     me.setAuthToken(authToken);
 
                     Log.d("getUserRetro", me.toString());
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                         User user = new User();
                         user.setUserId(userId);
                         createUserRetro(user);
+                        getUserRetro(userId, authToken);
                     }
                 }
             }
@@ -162,5 +165,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Error", t.toString());
             }
         });
+    }
+
+    public void cameraButtonPressed(View view) {
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
     }
 }
