@@ -1,5 +1,7 @@
 package com.cs407.around;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -13,6 +15,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,12 +49,15 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                FileOutputStream outStream = null;
-                try {
-                    outStream = new FileOutputStream(String.format("/sdcard/%d.jpg", System.currentTimeMillis()));
 
-                    outStream.write(data);
-                    outStream.close();
+                File file = new File(getFilesDir(), "photo.jpg");
+
+                try {
+                    FileOutputStream outputStream = new FileOutputStream(file.getPath());
+
+                    Log.d("SAVE PHOTO", camera.getParameters().getPictureSize().toString());
+                    outputStream.write(data);
+                    outputStream.close();
                 }
 
                 catch (FileNotFoundException e) {
@@ -63,8 +71,8 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 finally {
                 }
 
-                Toast.makeText(getApplicationContext(), "Picture Saved", Toast.LENGTH_LONG).show();
-                refreshCamera();
+                Intent intent = new Intent(getApplicationContext(), PhotoReviewActivity.class);
+                startActivity(intent);
             }
         };
 
@@ -113,7 +121,6 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         Camera.Parameters param;
         param = camera.getParameters();
         param.setPictureFormat(ImageFormat.JPEG);
-        param.setRotation(90);
         camera.setDisplayOrientation(90);
         camera.setParameters(param);
 
