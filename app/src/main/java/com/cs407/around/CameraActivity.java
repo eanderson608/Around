@@ -50,7 +50,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
-                File file = new File(getFilesDir(), "photo.jpg");
+                File file = new File(getFilesDir(), "temp_photo.jpg");
 
                 try {
                     FileOutputStream outputStream = new FileOutputStream(file.getPath());
@@ -121,6 +121,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         Camera.Parameters param;
         param = camera.getParameters();
         param.setPictureFormat(ImageFormat.JPEG);
+        param.setRotation(90);
         camera.setDisplayOrientation(90);
         camera.setParameters(param);
 
