@@ -15,5 +15,5 @@ public interface PhotoClient {
 
     @Multipart
     @POST("/api/photos/uploads")
-    Call<ResponseBody> upload(@Part("file\"; filename=\"photo.jpg\" ") RequestBody file );
+    Call<ResponseBody> upload(@Part("file\"; filename=\"temp_photo\" ") RequestBody file );
 }

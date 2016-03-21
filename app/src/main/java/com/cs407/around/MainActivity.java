@@ -1,6 +1,7 @@
 package com.cs407.around;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView fbInfo;
     private LoginButton fbLoginButton;
     private User me = new User();
+    SharedPreferences mPrefs;
     private CallbackManager callbackManager;
     private Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPrefs = getPreferences(MODE_PRIVATE);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -92,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.d("getUserRetro", me.toString());
                     updateUserRetro(me);
+
+                    // Save current user (me) to preferences
+                    SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                    String json = gson.toJson(me);
+                    prefsEditor.putString("me", json);
+                    prefsEditor.commit();
 
 
                 } else {

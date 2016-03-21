@@ -30,7 +30,7 @@ public class PhotoReviewActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.save_photo_button);
 
         // retrieve photo and place in imageView
-        File file = new File(this.getFilesDir() + "/temp_photo.jpg");
+        File file = new File(this.getFilesDir() + "/temp_photo");
         final Uri uri = Uri.fromFile(file);
         imageView = (ImageView) findViewById(R.id.photo_review_imageview);
         imageView.setImageURI(uri);
@@ -39,14 +39,14 @@ public class PhotoReviewActivity extends AppCompatActivity {
         // set behavior for save button
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                uploadFile(uri);
+                uploadPhoto(uri);
             }
         });
 
     }
 
     // Upload file to remote server
-    private void uploadFile(Uri uri) {
+    private void uploadPhoto(Uri uri) {
 
         File file = new File(uri.getPath());
         PhotoClient service = ServiceGenerator.createService(PhotoClient.class);
