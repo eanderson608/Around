@@ -27,18 +27,19 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String PREFS_NAME = "AROUND_PREFS";
+
     private TextView fbInfo;
     private LoginButton fbLoginButton;
     private User me = new User();
-    SharedPreferences mPrefs;
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
     private CallbackManager callbackManager;
     private Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mPrefs = getPreferences(MODE_PRIVATE);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -98,10 +99,12 @@ public class MainActivity extends AppCompatActivity {
                     updateUserRetro(me);
 
                     // Save current user (me) to preferences
-                    SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                    prefs = getApplicationContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    editor = prefs.edit();
+                    gson = new Gson();
                     String json = gson.toJson(me);
-                    prefsEditor.putString("me", json);
-                    prefsEditor.commit();
+                    editor.putString("me", json);
+                    editor.apply();
 
 
                 } else {

@@ -2,6 +2,7 @@ package com.cs407.around;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -20,6 +21,7 @@ import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,21 +32,22 @@ import java.io.IOException;
 public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    // file where preferences are stored
+    public static final String PREFS_NAME = "AROUND_PREFS";
+
     Camera camera;
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
     GoogleApiClient googleApiClient;
     Camera.PictureCallback jpegCallback;
     Location lastLocation;
-    String latitude;
-    String longitude;
-
+    double latitude;
+    double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
 
         surfaceView = (SurfaceView) findViewById(R.id.camera_surface_view);
         surfaceHolder = surfaceView.getHolder();
@@ -57,28 +60,25 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
-                File file = new File(getFilesDir(), "temp_photo");
+                double[] location = {longitude, latitude};
 
-                try {
+                // create file on phone where photo is stored temporarily
+                File file = new File(getFilesDir(), "/temp_photo");
+
+                try { // save the photo file
                     FileOutputStream outputStream = new FileOutputStream(file.getPath());
-
-                    Log.d("SAVE PHOTO", camera.getParameters().getPictureSize().toString());
                     outputStream.write(data);
                     outputStream.close();
-                }
-
-                catch (FileNotFoundException e) {
+                } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                }
-
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
                 }
 
-                finally {
-                }
-
+                // Create intent to open PhotoReviewActivity with location as an extra
                 Intent intent = new Intent(getApplicationContext(), PhotoReviewActivity.class);
+                intent.putExtra("location", location);
                 startActivity(intent);
             }
         };
@@ -93,8 +93,6 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     public void captureImage(View v) throws IOException {
-        Log.d("Latitude", latitude);
-        Log.d("Longitude", longitude);
         camera.takePicture(null, null, jpegCallback);
     }
 
@@ -134,6 +132,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             return;
         }
 
+        // set image format and rotate camera
         Camera.Parameters param;
         param = camera.getParameters();
         param.setPictureFormat(ImageFormat.JPEG);
@@ -172,8 +171,8 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             Log.e("SecurityException", e.toString());
         }
         if (lastLocation != null) {
-            latitude = String.valueOf(lastLocation.getLatitude());
-            longitude = String.valueOf(lastLocation.getLongitude());
+            longitude = lastLocation.getLongitude();
+            latitude = lastLocation.getLatitude();
         }
     }
 
