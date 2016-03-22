@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Around</string>
     <string name="facebook_app_id">453958574808328</string>
+
+    <string name="api_base_url">http://eanderson608.ddns.net/</string>
 </resources>

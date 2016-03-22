@@ -5,8 +5,15 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorTransparent">#00000000</color>
+
+    <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorYellow">#ffff32</color>
+    <color name="colorLightGrey">#bfbfbf</color>
+
+    <color name="colorDeselected">#bfbfbf</color>
     <color name="colorDownvote">#b70000</color>
-    <color name="colorUpvote">#008000</color>
+    <color name="colorUpvote">#ffff32</color>
 
 
 </resources>

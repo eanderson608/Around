@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
@@ -42,7 +43,13 @@ public class PhotoReviewActivity extends AppCompatActivity {
         // retrieve photo and place in imageView
         final Uri uri = Uri.fromFile(new File(this.getFilesDir() + "/temp_photo"));
         imageView = (ImageView) findViewById(R.id.photo_review_imageview);
-        imageView.setImageURI(uri);
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        // view image with picasso
+        Picasso.with(this).load(uri.toString())
+                .rotate(90)
+                .error(R.drawable.error)
+                .into(imageView);
 
         // retrieve photo location from intent
         double[] location = getIntent().getDoubleArrayExtra("location");

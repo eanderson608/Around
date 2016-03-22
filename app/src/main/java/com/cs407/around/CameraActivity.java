@@ -175,11 +175,10 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
         if(myBestSize != null){
 
-            params.setRotation(90);
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            camera.setDisplayOrientation(90);
             params.setPreviewSize(myBestSize.width, myBestSize.height);
             params.setPictureSize(myBestSize.width, myBestSize.height);
+            camera.setDisplayOrientation(90);
             camera.setParameters(params);
             camera.startPreview();
             isPreview = true;

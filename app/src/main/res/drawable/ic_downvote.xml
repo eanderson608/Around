@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <bitmap
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/ic_arrow_downward_black_48dp"
-    android:tint="@color/colorDownvote">
+    android:src="@drawable/ic_sentiment_dissatisfied_white_48dp"
+    android:tint="@color/colorDeselected">
 
 </bitmap>

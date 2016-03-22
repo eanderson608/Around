@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="@dimen/photo_item_top_bar_height"
         android:orientation="horizontal" >
 
         <ImageView
@@ -25,20 +25,31 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/photo_image_view"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".85"/>
+        android:layout_weight=".75">
+
+        <ImageView
+            android:background="@android:color/black"
+            android:id="@+id/photo_image_view"
+            android:layout_width="match_parent"
+            android:scaleType="centerCrop"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:orientation="horizontal" >
+        android:layout_height="@dimen/photo_item_bottom_bar_height"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/photo_icon_vertical_margin">
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/photo_icon_vertical_margin"
+            android:paddingRight="@dimen/photo_icon_vertical_margin"
             android:id="@+id/upvote_image_button"
             android:src="@drawable/ic_upvote"
             android:background="@color/colorTransparent"/>
@@ -46,6 +57,8 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/photo_icon_vertical_margin"
+            android:paddingRight="@dimen/photo_icon_vertical_margin"
             android:id="@+id/downvote_image_button"
             android:src="@drawable/ic_downvote"
             android:background="@color/colorTransparent"/>
@@ -53,6 +66,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:paddingLeft="@dimen/photo_icon_vertical_margin"
+            android:paddingRight="@dimen/photo_icon_vertical_margin"
+            android:gravity="center_vertical"
             android:text="score"
             android:id="@+id/photo_score_text_view"/>
 
