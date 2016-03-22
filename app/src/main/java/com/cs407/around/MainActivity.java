@@ -1,7 +1,10 @@
 package com.cs407.around;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,9 +20,22 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,13 +103,17 @@ public class MainActivity extends AppCompatActivity {
 
                     Gson gson = new GsonBuilder().create();
                     me = gson.fromJson(response.body().toString(), User.class);
+                    profile = Profile.getCurrentProfile();
 
                     // update fb info
                     me.setFirstName(profile.getFirstName());
                     me.setLastName(profile.getLastName());
                     me.setName(profile.getName());
-                    me.setUserProfilePic(profile.getProfilePictureUri(300, 300).toString());
+                    me.setUserProfilePic(profile.getProfilePictureUri(350, 350).toString());
                     me.setAuthToken(authToken);
+
+                    // upload profile picture to remote server @ /uploads/{userId}.jpg
+                    uploadProfilePhoto(profile.getProfilePictureUri(350, 350), me.getUserId());
 
                     Log.d("getUserRetro", me.toString());
                     updateUserRetro(me);
@@ -184,4 +204,64 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
     }
+
+    public void feedButtonPressed(View view) {
+        Intent intent = new Intent(this, FeedActivity.class);
+        startActivity(intent);
+    }
+
+    // Upload users profile to remote server to location /uploads/{userId}.jpg
+    private void uploadProfilePhoto(Uri uri, final String userId) {
+
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.init(ImageLoaderConfiguration.createDefault(this));
+
+        // Load image, decode it to Bitmap and return Bitmap to callback
+        imageLoader.loadImage(uri.toString(), new SimpleImageLoadingListener() {
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                // Save bitmap to temp file
+                File file = new File(getFilesDir(), "/temp_photo");
+                FileOutputStream os;
+                try {
+                    os = new FileOutputStream(file);
+                    loadedImage.compress(Bitmap.CompressFormat.PNG, 100, os);
+                    os.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // Assemble request to upload photo
+                PhotoClient service = ServiceGenerator.createService(PhotoClient.class);
+                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                RequestBody fileName = RequestBody.create(MediaType.parse("multipart/form-data"), userId + ".jpg");
+
+                // finally, execute the request
+                Call<ResponseBody> call = service.upload(requestFile, fileName);
+
+                // Upload photo
+                call.enqueue(new Callback<ResponseBody>() {
+
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        Log.v("Upload", response.raw().toString());
+
+                        // profile photo upload successful
+                        if (response.code() == 200) {
+
+                        } else {
+                            Log.e("file upload ERROR", response.raw().toString());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.e("Upload error:", t.toString());
+                    }
+                });
+            }
+        });
+    }
+
 }

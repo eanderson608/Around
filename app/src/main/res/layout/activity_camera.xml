@@ -13,14 +13,23 @@
 
     <SurfaceView
         android:id="@+id/camera_surface_view"
-        android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <Button
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorTransparent" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="capture"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_close_white_48dp"
+        android:background="@color/colorTransparent"
         android:onClick="captureImage" />
 
 </RelativeLayout>

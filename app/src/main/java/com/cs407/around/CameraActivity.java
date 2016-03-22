@@ -2,21 +2,19 @@ package com.cs407.around;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,6 +25,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 
 public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback,
@@ -43,12 +43,19 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     Location lastLocation;
     double latitude;
     double longitude;
+    boolean isPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        // set up Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+
+        isPreview = false;
         surfaceView = (SurfaceView) findViewById(R.id.camera_surface_view);
         surfaceHolder = surfaceView.getHolder();
 
@@ -92,6 +99,28 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_camera_activity, menu);
+        return true;
+    }
+
+    @Override // handle menu item button presses
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            // Open AddEventActivity
+            case R.id.action_close:
+                Intent intent = new Intent(this, com.cs407.around.FeedActivity.class);
+                startActivity(intent);
+
+            default:
+                break;
+        }
+        return true;
+    }
+
     public void captureImage(View v) throws IOException {
         camera.takePicture(null, null, jpegCallback);
     }
@@ -125,27 +154,14 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             camera = Camera.open();
-        }
-
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             System.err.println(e);
             return;
         }
-
-        // set image format and rotate camera
-        Camera.Parameters param;
-        param = camera.getParameters();
-        param.setPictureFormat(ImageFormat.JPEG);
-        param.setRotation(90);
-        camera.setDisplayOrientation(90);
-        camera.setParameters(param);
-
         try {
             camera.setPreviewDisplay(surfaceHolder);
             camera.startPreview();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e);
             return;
         }
@@ -153,6 +169,23 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+        Camera.Parameters params = camera.getParameters();
+        Camera.Size myBestSize = getBestPreviewSize(width, height, params);
+
+        if(myBestSize != null){
+
+            params.setRotation(90);
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            camera.setDisplayOrientation(90);
+            params.setPreviewSize(myBestSize.width, myBestSize.height);
+            params.setPictureSize(myBestSize.width, myBestSize.height);
+            camera.setParameters(params);
+            camera.startPreview();
+            isPreview = true;
+
+            Log.d("Best Size:",String.valueOf(myBestSize.width) + " : " + String.valueOf(myBestSize.height));
+        }
         refreshCamera();
     }
 
@@ -161,6 +194,23 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         camera.stopPreview();
         camera.release();
         camera = null;
+    }
+
+    // get best supported camera previw size,
+    // taken from http://android-er.blogspot.com/2012/08/determine-best-camera-preview-size.html
+    private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters){
+        Camera.Size bestSize = null;
+        List<Camera.Size> sizeList = parameters.getSupportedPreviewSizes();
+
+        bestSize = sizeList.get(0);
+
+        for(int i = 1; i < sizeList.size(); i++){
+            if((sizeList.get(i).width * sizeList.get(i).height) >
+                    (bestSize.width * bestSize.height)){
+                bestSize = sizeList.get(i);
+            }
+        }
+        return bestSize;
     }
 
     @Override
