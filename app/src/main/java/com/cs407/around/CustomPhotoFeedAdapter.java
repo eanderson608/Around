@@ -37,6 +37,7 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
 
         protected ImageView imageView;
+        protected ImageView userPhoto;
         protected ImageButton upvoteButton;
         protected ImageButton downvoteButton;
 
@@ -45,7 +46,7 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             this.imageView = (ImageView) view.findViewById(R.id.photo_image_view);
             this.upvoteButton = (ImageButton) view.findViewById(R.id.upvote_image_button);
             this.downvoteButton = (ImageButton) view.findViewById(R.id.downvote_image_button);
-
+            this.userPhoto = (ImageView) view.findViewById(R.id.user_photo_image_view);
         }
     }
 
@@ -69,15 +70,23 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         Picasso.with(context).load(path + photo.getFileName())
                 .rotate(90)
                 .error(R.drawable.error)
-                .placeholder(R.drawable.white_placeholder)
+                .placeholder(R.drawable.grey_placeholder)
                 .into(holder.imageView);
+
+        // Download users profile photo with Picasso
+        Picasso.with(context).load(path + photo.getUserId() + ".jpg")
+                .error(R.drawable.error)
+                .placeholder(R.drawable.grey_placeholder)
+                .into(holder.userPhoto);
+
+
 
         // handle behavior for upvote
         holder.upvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (!isUpvoted) {
                     int upvoteColor = context.getResources().getColor(R.color.colorUpvote);
-                    holder.upvoteButton.setColorFilter(upvoteColor, PorterDuff.Mode.SRC_ATOP);
+                    holder.upvoteButton.setColorFilter(upvoteColor, PorterDuff.Mode.SRC_IN);
                     isUpvoted = true;
                     if (isDownvoted) {
                         holder.downvoteButton.setColorFilter(null);
