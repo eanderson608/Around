@@ -9,6 +9,7 @@ import java.util.Date;
 public class Photo {
 
     private String userId;
+    private String userName;
     private String fileName;
     private long upvotes;
     private long downvotes;
@@ -73,10 +74,20 @@ public class Photo {
         this.location = location;
     }
 
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
         return "{" +
                 "userId='" + userId + '\'' +
+                ", userName='" + userName + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", upvotes=" + upvotes +
                 ", downvotes=" + downvotes +

@@ -5,6 +5,7 @@
     <dimen name="photo_icon_horizontal_margin">10dp</dimen>
     <dimen name="photo_icon_vertical_margin">10dp</dimen>
 
-    <dimen name="photo_item_top_bar_height">64dp</dimen>
-    <dimen name="photo_item_bottom_bar_height">48dp</dimen>
+    <dimen name="photo_item_top_bar_height">48dp</dimen>
+    <dimen name="photo_item_bottom_bar_height">32dp</dimen>
+    <dimen name="photo_item_text_size">24dp</dimen>
 </resources>

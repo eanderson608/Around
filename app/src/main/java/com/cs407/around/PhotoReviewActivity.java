@@ -62,12 +62,16 @@ public class PhotoReviewActivity extends AppCompatActivity {
 
         //Create Photo object
         photo = new Photo(me.getUserId());
+        photo.setUserName(me.getName());
         photo.setLocation(location);
         Log.d("PHOTO CREATED", photo.toString());
 
         // set behavior for save button
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                // turn off button so you cant upload twice
+                button.setClickable(false);
                 uploadPhoto(photo);
             }
         });
@@ -123,6 +127,10 @@ public class PhotoReviewActivity extends AppCompatActivity {
                 if (response.isSuccess()) {
                     Log.d("SUCCESS", response.raw().toString());
                     Log.d("PHOTO UPLOADED", photo.toString());
+
+                    // Goto feed
+                    Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                    startActivity(intent);
 
                 } else {
                     // error response, no access to resource?

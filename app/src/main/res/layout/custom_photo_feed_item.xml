@@ -5,42 +5,48 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginBottom="5dp"
+    android:background="@android:color/white"
     android:weightSum="1" >
 
     <LinearLayout
+        android:id="@+id/photo_item_top_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/photo_item_top_bar_height"
         android:orientation="horizontal" >
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/photo_item_top_bar_height"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:layout_marginRight="@dimen/photo_icon_vertical_margin"
+            android:layout_marginLeft="@dimen/photo_icon_vertical_margin"
+            android:layout_gravity="center_vertical"
+            android:scaleType="fitCenter"
+            android:padding="3dp"
+            android:src="@drawable/sample_profile_photo"
             android:id="@+id/user_photo_image_view" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/photo_item_text_size"
             android:id="@+id/user_name_text_view"
-            android:text="user name" />
+            android:text="User Name" />
 
     </LinearLayout>
 
-    <RelativeLayout
+    <ImageView
+        android:background="@android:color/black"
+        android:id="@+id/photo_image_view"
         android:layout_width="match_parent"
+        android:scaleType="centerCrop"
         android:layout_height="0dp"
-        android:layout_weight=".75">
-
-        <ImageView
-            android:background="@android:color/black"
-            android:id="@+id/photo_image_view"
-            android:layout_width="match_parent"
-            android:scaleType="centerCrop"
-            android:layout_height="match_parent" />
-
-    </RelativeLayout>
+        android:layout_weight=".30"/>
 
     <LinearLayout
+        android:id="@+id/photo_item_bottom_bar"
+        android:layout_marginTop="@dimen/photo_icon_vertical_margin"
         android:layout_width="match_parent"
         android:layout_height="@dimen/photo_item_bottom_bar_height"
         android:orientation="horizontal"
@@ -70,7 +76,8 @@
             android:paddingLeft="@dimen/photo_icon_vertical_margin"
             android:paddingRight="@dimen/photo_icon_vertical_margin"
             android:gravity="center_vertical"
-            android:text="score"
+            android:textSize="@dimen/photo_item_text_size"
+            android:text="20"
             android:id="@+id/photo_score_text_view"/>
 
     </LinearLayout>

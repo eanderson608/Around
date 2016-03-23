@@ -32,6 +32,8 @@ import java.util.List;
 public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    //TODO add camera2 logic so camera will work with APIs 22 plus
+
     // file where preferences are stored
     public static final String PREFS_NAME = "AROUND_PREFS";
 
@@ -72,7 +74,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 // create file on phone where photo is stored temporarily
                 File file = new File(getFilesDir(), "/temp_photo");
 
-                try { // save the photo file
+                try { // save the photo to temp file
                     FileOutputStream outputStream = new FileOutputStream(file.getPath());
                     outputStream.write(data);
                     outputStream.close();
@@ -170,6 +172,9 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
+        if (camera == null) {
+            camera.open();
+        }
         Camera.Parameters params = camera.getParameters();
         Camera.Size myBestSize = getBestPreviewSize(width, height, params);
 

@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView fbInfo;
     private LoginButton fbLoginButton;
-    private User me = new User();
+    private User me;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     private CallbackManager callbackManager;
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
                 profile = Profile.getCurrentProfile();
                 getUserRetro(loginResult.getAccessToken().getUserId(), loginResult.getAccessToken().getToken());
+                Log.d("FACEBOOK ONSUCCESS", "WHAT");
 
             }
 
@@ -82,10 +84,28 @@ public class MainActivity extends AppCompatActivity {
                 fbInfo.setText("login error");
             }
         });
+
+        // attempt to retrieve current user
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = prefs.getString("me", "");
+        me = gson.fromJson(json, User.class);
+
+
+        try { // attempt to load user profile from prefs
+            if (me.getUserId() != null) {
+                Intent intent = new Intent(this, CameraActivity.class);
+                startActivity(intent);
+            }
+        } catch (NullPointerException e) {
+            // continue
+        }
+        Log.d("ONCREATE", "end");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("ON ACTIVITY RESULT", "what");
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
