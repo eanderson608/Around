@@ -34,7 +34,8 @@
 
         <activity
             android:name=".PhotoReviewActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:noHistory="true" /> <!-- do not save history so photo-review cannot be accessed when back button is pressed -->
 
         <activity
             android:name=".FeedActivity"

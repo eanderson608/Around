@@ -7,6 +7,7 @@ import android.content.pm.PermissionGroupInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,13 +21,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.zip.Inflater;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Custom adapter that adapts custom_photo_feed_items to a recyclerview
@@ -40,15 +48,17 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
     private String path = "http://eanderson608.ddns.net/uploads/";
     private ArrayList<Photo> photoArrayList;
     private Context context;
-    private boolean isUpvoted;
-    private boolean isDownvoted;
     private boolean photoIsFullscreen;
     private long score;
     DisplayMetrics metrics;
+    private Location currentLocation;
+    private User me;
+    private PreferencesHelper prefs;
 
-    public CustomPhotoFeedAdapter(Context context, ArrayList<Photo> photoArrayList) {
+    public CustomPhotoFeedAdapter(Context context, ArrayList<Photo> photoArrayList, Location location) {
         this.photoArrayList = photoArrayList;
         this.context = context;
+        this.currentLocation = location;
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -61,6 +71,8 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         protected ImageButton downvoteButton;
         protected LinearLayout topBar;
         protected LinearLayout bottomBar;
+        protected TextView photoDistance;
+        protected TextView photoTime;
 
         PhotoViewHolder(View view) {
             super(view);
@@ -73,6 +85,8 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             this.photoScore = (TextView)view.findViewById(R.id.photo_score_text_view);
             this.topBar = (LinearLayout) view.findViewById(R.id.photo_item_top_bar);
             this.bottomBar = (LinearLayout) view.findViewById(R.id.photo_item_bottom_bar);
+            this.photoDistance = (TextView) view.findViewById(R.id.photo_distance_text_view);
+            this.photoTime = (TextView) view.findViewById(R.id.photo_time_text_view);
         }
     }
 
@@ -84,13 +98,11 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
     }
 
     @Override
-    public void onBindViewHolder(final PhotoViewHolder holder, int position) {
-        Photo photo = photoArrayList.get(position);
+    public void onBindViewHolder(final PhotoViewHolder holder, final int position) {
+        final Photo photo = photoArrayList.get(position);
 
-        isUpvoted = false;
-        isDownvoted = false;
         photoIsFullscreen = false;
-        score = photo.getUpvotes() - photo.getDownvotes();
+        score = photo.getScore();
 
         metrics = Resources.getSystem().getDisplayMetrics();
         final int screenHeight = metrics.heightPixels;
@@ -101,6 +113,31 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         holder.imageView.setMinimumHeight(((int) minImageHeight));
         holder.imageView.setMaxHeight(((int) minImageHeight));
         holder.imageView.setMinimumWidth(screenWidth);
+
+        // load me from preferences
+        prefs = new PreferencesHelper(context);
+        String json = prefs.getPreferences("me");
+        Log.d("JSON ME BIND", json);
+        Gson gson = new Gson();
+        me = gson.fromJson(json, User.class);
+
+
+        // set color of upvote/downvote buttons
+        if (me.hasDownvoted(photo.get_id())) { // change appearence of downvote button if it has already been downvoted
+            int downvoteColor = context.getResources().getColor(R.color.colorDownvote);
+            holder.downvoteButton.setColorFilter(downvoteColor, PorterDuff.Mode.SRC_IN);
+        }
+        else {
+            holder.downvoteButton.setColorFilter(R.color.colorLightGrey);
+        }
+
+        if (me.hasUpvoted(photo.get_id())) { // change appearence of upvote button if it has already been upvoted
+            int upvoteColor = context.getResources().getColor(R.color.colorUpvote);
+            holder.upvoteButton.setColorFilter(upvoteColor, PorterDuff.Mode.SRC_IN);
+        }
+        else {
+            holder.upvoteButton.setColorFilter(R.color.colorLightGrey);
+        }
 
         // Download image with picasso
         Picasso.with(context).load(path + photo.getFileName())
@@ -121,6 +158,19 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         // Calculate and set score
         holder.photoScore.setText(String.format("%d", score));
 
+        // Set elapsed time
+        holder.photoTime.setText(getElapsedTime(photo.getTime()));
+
+        // set distance from photo
+        // parameter for Location constructor is "provider", no idea what that is
+        try {
+            Location photoLocation = new Location("photo");
+            photoLocation.setLongitude(photo.getLocation()[0]);
+            photoLocation.setLatitude(photo.getLocation()[1]);
+            holder.photoDistance.setText(getDistanceAsString(currentLocation.distanceTo(photoLocation)));
+        } catch (NullPointerException e) {
+            holder.photoDistance.setText("");
+        }
 
         /*
         //TODO enable toggle image to fullscreen
@@ -150,54 +200,77 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         });
         */
 
-        // handle behavior for upvote
-        //TODO add logic to update score on server
+
         holder.upvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!isUpvoted) {
-                    int upvoteColor = context.getResources().getColor(R.color.colorUpvote);
-                    holder.upvoteButton.setColorFilter(upvoteColor, PorterDuff.Mode.SRC_IN);
-                    score++;
-                    holder.photoScore.setText(String.format("%d", score));
-                    isUpvoted = true;
-                    if (isDownvoted) {
-                        holder.downvoteButton.setColorFilter(null);
-                        score++;
-                        holder.photoScore.setText(String.format("%d", score));
-                        isDownvoted = false;
-                    }
-                } else {
-                    holder.upvoteButton.setColorFilter(null);
+                String photoId = photo.get_id();
+                String userId = photo.getUserId();
+                Log.d("UPVOTE PRESSED", photoId.toString());
+                int upvoteColor = context.getResources().getColor(R.color.colorUpvote);
+                if (me.hasUpvoted(photoId)) { // remove an upvote
+                    holder.upvoteButton.setColorFilter(R.color.colorLightGrey);
+                    me.removeUpvote(photoId);
+                    incrementUserScoreRetro(userId, -1);
                     score--;
-                    holder.photoScore.setText(String.format("%d", score));
-                    isUpvoted = false;
+                    incrementPhotoVoteRetro(photoId, "upvotes", -1);
+                } else { // add an upvote
+                    holder.upvoteButton.setColorFilter(upvoteColor);
+                    score++;
+                    me.addUpvote(photoId);
+                    incrementUserScoreRetro(userId, 1);
+                    incrementPhotoVoteRetro(photoId, "upvotes", 1);
+                    if (me.hasDownvoted(photoId)) { // remove downvote if necessary
+                        holder.downvoteButton.setColorFilter(R.color.colorLightGrey);
+                        score++;
+                        me.removeDownvote(photoId);
+                        incrementUserScoreRetro(userId, 1);
+                        incrementPhotoVoteRetro(photoId, "downvotes", -1);
+                    }
                 }
+                holder.photoScore.setText(String.format("%d", score));
+                Gson gson = new Gson();
+                prefs = new PreferencesHelper(context);
+                String json = gson.toJson(me);
+                prefs.savePreferences("me", json);
+                me.updateRetro(context);
             }
         });
 
-        // handle behavior for downvote
-        //TODO add logic to update score on server
-        holder.downvoteButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (!isDownvoted) {
-                    int downvoteColor = context.getResources().getColor(R.color.colorDownvote);
-                    holder.downvoteButton.setColorFilter(downvoteColor, PorterDuff.Mode.SRC_IN);
-                    score--;
-                    holder.photoScore.setText(String.format("%d", score));
-                    isDownvoted = true;
-                    if (isUpvoted) {
-                        holder.upvoteButton.setColorFilter(null);
-                        score--;
-                        holder.photoScore.setText(String.format("%d", score));
-                        isUpvoted = false;
-                    }
 
-                } else {
-                    holder.downvoteButton.setColorFilter(null);
+        holder.downvoteButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                String photoId = photo.get_id();
+                String userId = photo.getUserId();
+                Log.d("DOWNVOTE PRESSED", photoId.toString());
+                int downvoteColor = context.getResources().getColor(R.color.colorDownvote);
+                if (me.hasDownvoted(photoId)) { // remove a downvote
+                    holder.downvoteButton.setColorFilter(R.color.colorLightGrey);
+                    me.removeDownvote(photoId);
+                    incrementUserScoreRetro(userId, 1);
                     score++;
-                    holder.photoScore.setText(String.format("%d", score));
-                    isDownvoted = false;
+                    incrementPhotoVoteRetro(photoId, "downvotes", -1);
+                } else { // add a downvote
+                    holder.downvoteButton.setColorFilter(downvoteColor);
+                    score--;
+                    me.addDownvote(photoId);
+                    incrementUserScoreRetro(userId, -1);
+                    incrementPhotoVoteRetro(photoId, "downvotes", 1);
+                    if (me.hasUpvoted(photoId)) { // remove upvote if necessary
+                        holder.upvoteButton.setColorFilter(R.color.colorLightGrey);
+                        score--;
+                        me.removeUpvote(photoId);
+                        incrementUserScoreRetro(userId, -1);
+                        incrementPhotoVoteRetro(photoId, "upvotes", -1);
+                        Log.d("REMOVE UPVOTE", me.getUpvotes().toString());
+                    }
                 }
+                holder.photoScore.setText(String.format("%d", score));
+                Gson gson = new Gson();
+                prefs = new PreferencesHelper(context);
+                String json = gson.toJson(me);
+                prefs.savePreferences("me", json);
+                me.updateRetro(context);
             }
         });
     }
@@ -207,4 +280,105 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         return (null != photoArrayList ? photoArrayList.size() : 0);
     }
 
+    @Override
+    public long getItemId(int position) {
+        Photo photo = photoArrayList.get(position);
+        return photo.getTime();
+    }
+
+    // get the time that has elapsed since photo was taken, returns a formatted string
+    private String getElapsedTime(long timePosted) {
+
+        long elapsedMillis = System.currentTimeMillis() - timePosted;
+
+        long elapsedSeconds = elapsedMillis / 1000;
+        if (elapsedSeconds < 60) {
+            if (elapsedSeconds == 1) return String.format("%d second ago", elapsedSeconds);
+            else return String.format("%d seconds ago", elapsedSeconds);
+        }
+
+        long elapsedMinutes = elapsedSeconds / 60;
+        if (elapsedMinutes < 60) {
+            if (elapsedMinutes == 1) return String.format("%d minute ago", elapsedMinutes);
+            else return String.format("%d minutes ago", elapsedMinutes);
+        }
+
+        long elapsedHours = elapsedMinutes / 60;
+        if (elapsedHours < 24) {
+            if (elapsedHours == 1) return String.format("%d hour ago", elapsedHours);
+            else return String.format("%d hours ago", elapsedHours);
+        }
+
+        long elapsedDays = elapsedHours / 24;
+        if (elapsedDays == 1) return String.format("%d day ago", elapsedDays);
+        else return String.format("%d days ago", elapsedDays);
+    }
+
+    // takes a distance as a float as input and returns a formatted string
+    // TODO provide an option to display distances in metric?
+    private String getDistanceAsString(float distanceInMeters) {
+        float distanceInFeet = distanceInMeters * ((float) 3.28084);
+        if (distanceInFeet < 1000) {
+            if (distanceInFeet == 1) return String.format("%.0f foot away", distanceInFeet);
+            else return String.format("%.0f feet away", distanceInFeet);
+        }
+        float distanceInMiles = distanceInFeet / 5280;
+        if (Math.round(distanceInMiles * 100.0) / 100.0 == 1) return String.format("%.0f mile away", distanceInMiles);
+        if (distanceInMiles < 3) return String.format("%.2f miles away", distanceInMiles);
+        return String.format("%.0f miles away", distanceInMiles);
+    }
+
+    private void incrementPhotoVoteRetro(String id, String field, int amount) {
+
+        PhotoClient client = ServiceGenerator.createService(PhotoClient.class);
+        Call<ResponseBody> call = client.incrementPhotoVote(id, field, amount);
+
+        call.enqueue(new Callback<ResponseBody>() {
+
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if (response.isSuccess()) {
+                    Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+
+                } else {
+                    // error response, no access to resource?
+                    Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // something went completely south (like no internet connection)
+                Log.d("Error", t.getMessage());
+            }
+        });
+    }
+
+    private void incrementUserScoreRetro(String userId, int amount) {
+
+        UserClient client = ServiceGenerator.createService(UserClient.class);
+        Call<ResponseBody> call = client.incrementUserScore(userId, amount);
+
+        call.enqueue(new Callback<ResponseBody>() {
+
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if (response.isSuccess()) {
+                    Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+
+                } else {
+                    // error response, no access to resource?
+                    Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // something went completely south (like no internet connection)
+                Log.d("Error", t.getMessage());
+            }
+        });
+    }
 }

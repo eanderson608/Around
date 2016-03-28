@@ -43,13 +43,10 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String PREFS_NAME = "AROUND_PREFS";
-
     private TextView fbInfo;
     private LoginButton fbLoginButton;
     private User me;
-    SharedPreferences prefs;
-    SharedPreferences.Editor editor;
+    PreferencesHelper prefs;
     private CallbackManager callbackManager;
     private Profile profile;
 
@@ -57,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        prefs = new PreferencesHelper(getApplicationContext());
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -86,9 +85,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // attempt to retrieve current user
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String json = prefs.getPreferences("me");
+        Log.d("JSON ME MAIN", json);
         Gson gson = new Gson();
-        String json = prefs.getString("me", "");
         me = gson.fromJson(json, User.class);
 
 
@@ -98,14 +97,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         } catch (NullPointerException e) {
-            // continue
+            e.printStackTrace();
+            // continue, wait for user to press log in button
         }
-        Log.d("ONCREATE", "end");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("ON ACTIVITY RESULT", "what");
+
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -135,16 +134,15 @@ public class MainActivity extends AppCompatActivity {
                     // upload profile picture to remote server @ /uploads/{userId}.jpg
                     uploadProfilePhoto(profile.getProfilePictureUri(350, 350), me.getUserId());
 
-                    Log.d("getUserRetro", me.toString());
-                    updateUserRetro(me);
+                    Log.d("me.updateRetro()", me.toString());
+                    me.updateRetro(getApplicationContext());
 
                     // Save current user (me) to preferences
-                    prefs = getApplicationContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                    editor = prefs.edit();
                     gson = new Gson();
                     String json = gson.toJson(me);
-                    editor.putString("me", json);
-                    editor.apply();
+                    Log.d("SAVE PREFS", json);
+                    prefs.savePreferences("me", json);
+
 
 
                 } else {
@@ -190,32 +188,6 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // something went completely south (like no internet connection)
                 Log.d("Error", t.getMessage());
-            }
-        });
-    }
-
-    private void updateUserRetro(User user) {
-
-        UserClient client = ServiceGenerator.createService(UserClient.class);
-        Log.d("START UPDATE USER", user.toString());
-        Call<User> call = client.updateUser(user.getUserId(), user);
-
-        call.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                if (response.isSuccess()) {
-                    Log.d("UPDATE SUCCESS", response.raw().toString());
-
-                } else {
-                    // error response, no access to resource?
-                    Log.d("UPDATE ERROR", response.raw().toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                // something went completely south (like no internet connection)
-                Log.d("Error", t.toString());
             }
         });
     }

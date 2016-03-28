@@ -80,6 +80,30 @@
             android:text="20"
             android:id="@+id/photo_score_text_view"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingEnd="@dimen/photo_icon_vertical_margin"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/photo_distance_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="300 feet away"
+                android:gravity="end"
+                android:layout_gravity="end"/>
+
+            <TextView
+                android:id="@+id/photo_time_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1 minute ago"
+                android:gravity="end"
+                android:layout_gravity="end"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

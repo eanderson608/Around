@@ -7,6 +7,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 
 public interface UserClient {
@@ -19,4 +20,7 @@ public interface UserClient {
 
     @PUT("/api/users/{userId}")
     Call<User> updateUser(@Path("userId") String userId, @Body User user);
+
+    @PUT("/api/users/{userId}/increment")
+    Call<ResponseBody> incrementUserScore(@Path("userId") String userId, @Query("amount") int amount);
 }

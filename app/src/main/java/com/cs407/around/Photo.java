@@ -8,12 +8,14 @@ import java.util.Date;
 
 public class Photo {
 
+    private String _id;
     private String userId;
     private String userName;
     private String fileName;
     private long upvotes;
     private long downvotes;
-    private long timeStamp;
+    private long time;
+    private long score;
     private double[] location;
 
     // Public constructor, uses parameter userId and current time
@@ -22,8 +24,12 @@ public class Photo {
         this.userId = userId;
         this.upvotes = 0;
         this.downvotes = 0;
-        this.timeStamp = System.currentTimeMillis();
-        this.fileName = userId + "-" + Long.toString(this.timeStamp) + ".jpg";
+        this.time = System.currentTimeMillis();
+        this.fileName = userId + "-" + Long.toString(this.time) + ".jpg";
+    }
+
+    public String get_id() {
+        return _id;
     }
 
     public String getUserId() {
@@ -58,12 +64,12 @@ public class Photo {
         this.downvotes = downvotes;
     }
 
-    public long getTimeStamp() {
-        return timeStamp;
+    public long getTime() {
+        return time;
     }
 
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public double[] getLocation() {
@@ -83,15 +89,21 @@ public class Photo {
         this.userName = userName;
     }
 
+    public long getScore() {
+        return score;
+    }
+
     @Override
     public String toString() {
         return "{" +
-                "userId='" + userId + '\'' +
+                "_id='" + _id + '\'' +
+                ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", upvotes=" + upvotes +
                 ", downvotes=" + downvotes +
-                ", timeStamp=" + timeStamp +
+                ", time=" + time +
+                ", score=" + score +
                 ", location=" + Arrays.toString(location) +
                 '}';
     }

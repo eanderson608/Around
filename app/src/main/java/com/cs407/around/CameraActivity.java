@@ -69,7 +69,26 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
 
+                // Get last location
+                try {
+                    lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                } catch (SecurityException e) {
+                    Log.e("SecurityException", e.toString());
+                }
+                if (lastLocation != null) {
+                    longitude = lastLocation.getLongitude();
+                    latitude = lastLocation.getLatitude();
+                }
+
                 double[] location = {longitude, latitude};
+                Location l = new Location("here");
+                l.setLatitude(latitude);
+                l.setLongitude(longitude);
+                Location c = new Location("caribou");
+                c.setLongitude(-89.3796855);
+                c.setLatitude(43.0824091);
+                Log.d("LOCATION l", l.toString());
+                Log.d("DISTANCE to caribou", Float.toString(l.distanceTo(c)));
 
                 // create file on phone where photo is stored temporarily
                 File file = new File(getFilesDir(), "/temp_photo");

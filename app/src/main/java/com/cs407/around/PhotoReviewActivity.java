@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -47,6 +48,7 @@ public class PhotoReviewActivity extends AppCompatActivity {
 
         // view image with picasso
         Picasso.with(this).load(uri.toString())
+                .memoryPolicy(MemoryPolicy.NO_CACHE) // do not cache /temp_photo bc it is updated often and we dont want to load the old photo
                 .rotate(90)
                 .error(R.drawable.error)
                 .into(imageView);
