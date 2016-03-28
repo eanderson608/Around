@@ -43,7 +43,7 @@ import retrofit2.Response;
 public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeedAdapter.PhotoViewHolder> {
 
     // the percentage of the screen a photo takes up in the feed
-    final double PHOTO_SCREEN_PERCENTAGE = .5;
+    final double PHOTO_SCREEN_PERCENTAGE = .7;
 
     private String path = "http://eanderson608.ddns.net/uploads/";
     private ArrayList<Photo> photoArrayList;
@@ -128,7 +128,7 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             holder.downvoteButton.setColorFilter(downvoteColor, PorterDuff.Mode.SRC_IN);
         }
         else {
-            holder.downvoteButton.setColorFilter(R.color.colorLightGrey);
+            holder.downvoteButton.setColorFilter(null);
         }
 
         if (me.hasUpvoted(photo.get_id())) { // change appearence of upvote button if it has already been upvoted
@@ -136,12 +136,14 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             holder.upvoteButton.setColorFilter(upvoteColor, PorterDuff.Mode.SRC_IN);
         }
         else {
-            holder.upvoteButton.setColorFilter(R.color.colorLightGrey);
+            holder.upvoteButton.setColorFilter(null);
         }
 
         // Download image with picasso
         Picasso.with(context).load(path + photo.getFileName())
                 .rotate(90)
+                .resize(screenWidth / 2, screenHeight / 2)
+                .centerInside()
                 .error(R.drawable.error)
                 .placeholder(R.drawable.grey_placeholder)
                 .into(holder.imageView);
@@ -155,7 +157,7 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         // Set user name field
         holder.userName.setText(photo.getUserName());
 
-        // Calculate and set score
+        // set score
         holder.photoScore.setText(String.format("%d", score));
 
         // Set elapsed time
@@ -200,28 +202,31 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         });
         */
 
-
+        // handle logic for photo upvotes
+        // TODO - photo and user score is correctly being calculated and updating to the server
+        // TODO - but is incorrectly displayed until feed is refreshed.
         holder.upvoteButton.setOnClickListener(new View.OnClickListener() {
+
             public void onClick(View v) {
                 String photoId = photo.get_id();
                 String userId = photo.getUserId();
-                Log.d("UPVOTE PRESSED", photoId.toString());
+                score = photo.getScore();
                 int upvoteColor = context.getResources().getColor(R.color.colorUpvote);
                 if (me.hasUpvoted(photoId)) { // remove an upvote
-                    holder.upvoteButton.setColorFilter(R.color.colorLightGrey);
+                    holder.upvoteButton.setColorFilter(null);
                     me.removeUpvote(photoId);
                     incrementUserScoreRetro(userId, -1);
-                    score--;
+                    --score;
                     incrementPhotoVoteRetro(photoId, "upvotes", -1);
                 } else { // add an upvote
                     holder.upvoteButton.setColorFilter(upvoteColor);
-                    score++;
+                    ++score;
                     me.addUpvote(photoId);
                     incrementUserScoreRetro(userId, 1);
                     incrementPhotoVoteRetro(photoId, "upvotes", 1);
                     if (me.hasDownvoted(photoId)) { // remove downvote if necessary
-                        holder.downvoteButton.setColorFilter(R.color.colorLightGrey);
-                        score++;
+                        holder.downvoteButton.setColorFilter(null);
+                        ++score;
                         me.removeDownvote(photoId);
                         incrementUserScoreRetro(userId, 1);
                         incrementPhotoVoteRetro(photoId, "downvotes", -1);
@@ -236,29 +241,31 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             }
         });
 
-
+        // handle logic for photo downvotes
+        // TODO - photo and user score is correctly being calculated and updating to the server
+        // TODO - but is incorrectly displayed until feed is refreshed.
         holder.downvoteButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
                 String photoId = photo.get_id();
                 String userId = photo.getUserId();
-                Log.d("DOWNVOTE PRESSED", photoId.toString());
+                score = photo.getScore();
                 int downvoteColor = context.getResources().getColor(R.color.colorDownvote);
                 if (me.hasDownvoted(photoId)) { // remove a downvote
-                    holder.downvoteButton.setColorFilter(R.color.colorLightGrey);
+                    holder.downvoteButton.setColorFilter(null);
                     me.removeDownvote(photoId);
                     incrementUserScoreRetro(userId, 1);
-                    score++;
+                    ++score;
                     incrementPhotoVoteRetro(photoId, "downvotes", -1);
                 } else { // add a downvote
                     holder.downvoteButton.setColorFilter(downvoteColor);
-                    score--;
+                    --score;
                     me.addDownvote(photoId);
                     incrementUserScoreRetro(userId, -1);
                     incrementPhotoVoteRetro(photoId, "downvotes", 1);
                     if (me.hasUpvoted(photoId)) { // remove upvote if necessary
-                        holder.upvoteButton.setColorFilter(R.color.colorLightGrey);
-                        score--;
+                        holder.upvoteButton.setColorFilter(null);
+                        --score;
                         me.removeUpvote(photoId);
                         incrementUserScoreRetro(userId, -1);
                         incrementPhotoVoteRetro(photoId, "upvotes", -1);
@@ -278,12 +285,6 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
     @Override
     public int getItemCount() {
         return (null != photoArrayList ? photoArrayList.size() : 0);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        Photo photo = photoArrayList.get(position);
-        return photo.getTime();
     }
 
     // get the time that has elapsed since photo was taken, returns a formatted string

@@ -13,7 +13,7 @@
 
     <color name="colorDeselected">#bfbfbf</color>
     <color name="colorDownvote">#b70000</color>
-    <color name="colorUpvote">#ffff00</color>
+    <color name="colorUpvote">#64dd17</color>
 
 
 </resources>

@@ -90,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         me = gson.fromJson(json, User.class);
 
+        /*
+
+        // uncomment  below to load camera immediately if user is already logged in
 
         try { // attempt to load user profile from prefs
             if (me.getUserId() != null) {
@@ -100,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             // continue, wait for user to press log in button
         }
+        */
     }
 
     @Override

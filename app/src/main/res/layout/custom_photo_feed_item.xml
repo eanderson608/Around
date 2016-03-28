@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:layout_marginBottom="5dp"
     android:background="@android:color/white"
+    android:elevation="@dimen/toolbar_elevation"
     android:weightSum="1" >
 
     <LinearLayout
@@ -42,7 +43,7 @@
         android:layout_width="match_parent"
         android:scaleType="centerCrop"
         android:layout_height="0dp"
-        android:layout_weight=".30"/>
+        android:layout_weight=".50"/>
 
     <LinearLayout
         android:id="@+id/photo_item_bottom_bar"
@@ -84,6 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingEnd="@dimen/photo_icon_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
             android:orientation="vertical" >
 
             <TextView

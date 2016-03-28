@@ -9,7 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -36,6 +41,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
     Location lastLocation;
     User me;
     PreferencesHelper prefs;
+    LinearLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +49,11 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_feed);
 
         prefs = new PreferencesHelper(getApplicationContext());
+
+        // set up Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
 
         // Register Google API Client to be used for Location Services
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -62,15 +73,31 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
         /*
          *  Adapter is created and set in the OnConnected method for Google Location services
          *  below.  This is to make sure we find the current location before calculating distances
          *  to photos in the feed.
+         *
+         *  Uncomment the section below to use without Google Location Services.
+         *  will probabably need to do this if the feed is not working since the emulators
+         *  do not support location services.
+         *
          */
 
+        /*
+        lastLocation = new Location("location");
+        lastLocation.setLongitude(-89.3864085);
+        lastLocation.setLatitude(43.0780441);
+        adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
+        adapter.setHasStableIds(true);
+        recyclerView.setAdapter(adapter);
+
+        // get new photos from up to 10 miles away
+        getPhotosRetro("time", (long) 16093);
+        */
     }
 
     // get photos using Retrofit2 ORM, takes one parameter sortOn, which is either "time" or "score" depending
@@ -123,7 +150,6 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
         // only set adapter and get photos after current location has been recorded
         adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
-        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
 
         // get new photos from up to 10 miles away
@@ -156,5 +182,42 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onResume() {
         googleApiClient.connect();
         super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_feed_activity, menu);
+        return true;
+    }
+
+    @Override // handle menu item button presses
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            // Open Camera
+            case R.id.action_camera:
+                Intent intent = new Intent(this, CameraActivity.class);
+                startActivity(intent);
+                break;
+
+            // reload photos sorted most recent first
+            case R.id.action_new:
+                photoArrayList.clear();
+                getPhotosRetro("time", (long) 16093);
+                layoutManager.scrollToPosition(0);
+                break;
+
+            // reload photos sorted by most popular first
+            case R.id.action_hot:
+                photoArrayList.clear();
+                getPhotosRetro("score", (long) 16093);
+                layoutManager.scrollToPosition(0);
+                break;
+
+            default:
+                break;
+        }
+        return true;
     }
 }
