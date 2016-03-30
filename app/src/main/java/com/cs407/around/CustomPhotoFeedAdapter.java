@@ -2,20 +2,28 @@ package com.cs407.around;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PermissionGroupInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,10 +77,11 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         protected TextView photoScore;
         protected ImageButton upvoteButton;
         protected ImageButton downvoteButton;
-        protected LinearLayout topBar;
+        protected RelativeLayout topBar;
         protected LinearLayout bottomBar;
         protected TextView photoDistance;
         protected TextView photoTime;
+        protected ImageButton moreButton;
 
         PhotoViewHolder(View view) {
             super(view);
@@ -83,10 +92,11 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             this.userPhoto = (ImageView) view.findViewById(R.id.user_photo_image_view);
             this.userName = (TextView) view.findViewById(R.id.user_name_text_view);
             this.photoScore = (TextView)view.findViewById(R.id.photo_score_text_view);
-            this.topBar = (LinearLayout) view.findViewById(R.id.photo_item_top_bar);
+            this.topBar = (RelativeLayout) view.findViewById(R.id.photo_item_top_bar);
             this.bottomBar = (LinearLayout) view.findViewById(R.id.photo_item_bottom_bar);
             this.photoDistance = (TextView) view.findViewById(R.id.photo_distance_text_view);
             this.photoTime = (TextView) view.findViewById(R.id.photo_time_text_view);
+            this.moreButton = (ImageButton) view.findViewById(R.id.more_image_button);
         }
     }
 
@@ -127,17 +137,13 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             int downvoteColor = context.getResources().getColor(R.color.colorDownvote);
             holder.downvoteButton.setColorFilter(downvoteColor, PorterDuff.Mode.SRC_IN);
         }
-        else {
-            holder.downvoteButton.setColorFilter(null);
-        }
+        else { holder.downvoteButton.setColorFilter(null); }
 
         if (me.hasUpvoted(photo.get_id())) { // change appearence of upvote button if it has already been upvoted
             int upvoteColor = context.getResources().getColor(R.color.colorUpvote);
             holder.upvoteButton.setColorFilter(upvoteColor, PorterDuff.Mode.SRC_IN);
         }
-        else {
-            holder.upvoteButton.setColorFilter(null);
-        }
+        else { holder.upvoteButton.setColorFilter(null); }
 
         // Download image with picasso
         Picasso.with(context).load(path + photo.getFileName())
@@ -280,6 +286,57 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
                 me.updateRetro(context);
             }
         });
+
+        // handle behavior for photo options/settings popup menu button
+        holder.moreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PopupMenu menu = new PopupMenu(context, holder.moreButton);
+                menu.getMenuInflater().inflate(R.menu.menu_photo_item_overflow, menu.getMenu());
+
+                // remove delete option if photo does not belong to user
+                if (!photo.getUserId().equals(me.getUserId())) menu.getMenu().removeItem(R.id.action_photo_delete);
+
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+
+                        switch (item.getItemId()) {
+
+                            // Open Camera
+                            case R.id.action_photo_delete:
+
+                                new AlertDialog.Builder(context)
+                                        .setCancelable(true)
+                                        .setTitle(R.string.delete_photo_alert_dialog)
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                                // delete the photo
+                                                deletePhotoRetro(photo.get_id(), position);
+                                            }
+                                        })
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // do nothing
+                                            }
+                                        })
+                                        .show();
+
+                                break;
+
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+
+                menu.show(); //showing popup menu
+            }
+        });
     }
 
     @Override
@@ -352,6 +409,8 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // something went completely south (like no internet connection)
                 Log.d("Error", t.getMessage());
+                Toast.makeText(context, R.string.no_connection_to_server, Toast.LENGTH_LONG).show();
+
             }
         });
     }
@@ -379,6 +438,37 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // something went completely south (like no internet connection)
                 Log.d("Error", t.getMessage());
+                Toast.makeText(context, R.string.no_connection_to_server, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void deletePhotoRetro(String photoId, final int position) {
+
+        PhotoClient client = ServiceGenerator.createService(PhotoClient.class);
+        Call<ResponseBody> call = client.deletePhoto(photoId);
+
+        call.enqueue(new Callback<ResponseBody>() {
+
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if (response.isSuccess()) {
+                    Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+                    Toast.makeText(context, "photo deleted", Toast.LENGTH_LONG).show();
+
+                } else {
+                    // error response, no access to resource?
+                    Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+                    Toast.makeText(context, "could not delete photo", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // something went completely south (like no internet connection)
+                Log.d("Error", t.getMessage());
+                Toast.makeText(context, R.string.no_connection_to_server, Toast.LENGTH_LONG).show();
             }
         });
     }

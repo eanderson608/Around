@@ -7,6 +7,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -29,6 +30,9 @@ public interface PhotoClient {
 
     @PUT("/api/photos/{id}/increment")
     Call<ResponseBody> incrementPhotoVote(@Path("id") String id, @Query("field") String field, @Query("amount") int amount);
+
+    @DELETE("/api/photos/{id}")
+    Call<ResponseBody> deletePhoto(@Path("id") String id);
 
     @Multipart
     @POST("/api/photos/uploads")
