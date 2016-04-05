@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -38,6 +39,8 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
     RecyclerView recyclerView;
     private ArrayList<Photo> photoArrayList;
     private CustomPhotoFeedAdapter adapter;
+    private Button hotButton;
+    private Button newButton;
     GoogleApiClient googleApiClient;
     Location lastLocation;
     User me;
@@ -50,6 +53,9 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_feed);
 
         prefs = new PreferencesHelper(getApplicationContext());
+
+        hotButton = (Button) findViewById(R.id.sort_by_hot_button);
+        newButton = (Button) findViewById(R.id.sort_by_new_button);
 
         // set up Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -99,6 +105,35 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         // get new photos from up to 10 miles away
         getPhotosRetro("time", (long) 16093);
         */
+
+        // sort photos by most upvotes
+        hotButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                photoArrayList.clear();
+                getPhotosRetro("score", (long) 16093);
+                hotButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                hotButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+                newButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+                newButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+                layoutManager.scrollToPosition(0);
+            }
+        });
+
+        // sort photos by newest
+        newButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                photoArrayList.clear();
+                getPhotosRetro("time", (long) 16093);
+                newButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+                hotButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+                hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+                layoutManager.scrollToPosition(0);
+            }
+        });
+
     }
 
     // get photos using Retrofit2 ORM, takes one parameter sortOn, which is either "time" or "score" depending
@@ -155,6 +190,8 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
         // get new photos from up to 10 miles away
         getPhotosRetro("time", (long) 16093);
+        newButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
     }
 
     @Override // needed for Google Location Services
@@ -200,20 +237,6 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
             case R.id.action_camera:
                 Intent intent = new Intent(this, CameraActivity.class);
                 startActivity(intent);
-                break;
-
-            // reload photos sorted most recent first
-            case R.id.action_new:
-                photoArrayList.clear();
-                getPhotosRetro("time", (long) 16093);
-                layoutManager.scrollToPosition(0);
-                break;
-
-            // reload photos sorted by most popular first
-            case R.id.action_hot:
-                photoArrayList.clear();
-                getPhotosRetro("score", (long) 16093);
-                layoutManager.scrollToPosition(0);
                 break;
 
             default:

@@ -204,6 +204,9 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
+        Log.d("WIDTH", Integer.toString(width));
+        Log.d("HEIGHT", Integer.toString(height));
+
         if (camera == null) {
             camera.open(cameraToOpen);
         }

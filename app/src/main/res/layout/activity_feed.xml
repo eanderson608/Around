@@ -20,6 +20,22 @@
             android:subtitleTextColor="@android:color/white"
             android:elevation="@dimen/toolbar_elevation" >
 
+            <Button
+                android:id="@+id/sort_by_new_button"
+                android:text="new"
+                android:background="@android:color/transparent"
+                android:textColor="@color/colorDeselected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/sort_by_hot_button"
+                android:text="hot"
+                android:background="@android:color/transparent"
+                android:textColor="@color/colorDeselected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
 
         </android.support.v7.widget.Toolbar>
 
