@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -58,10 +59,11 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
     private Context context;
     private boolean photoIsFullscreen;
     private long score;
-    DisplayMetrics metrics;
+    private DisplayMetrics metrics;
     private Location currentLocation;
     private User me;
     private PreferencesHelper prefs;
+    private ImageView fullscreen;
 
     public CustomPhotoFeedAdapter(Context context, ArrayList<Photo> photoArrayList, Location location) {
         this.photoArrayList = photoArrayList;
@@ -180,12 +182,13 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
             holder.photoDistance.setText("");
         }
 
-        /*
+
         //TODO enable toggle image to fullscreen
         // toggle photo fullscreen when it is clicked
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                /*
                 if (!photoIsFullscreen) {
                     holder.topBar.setVisibility(LinearLayout.GONE);
                     holder.bottomBar.setVisibility(LinearLayout.GONE);
@@ -202,11 +205,9 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
 
                     photoIsFullscreen = false;
                 }
-
-
+                */
             }
         });
-        */
 
         // handle logic for photo upvotes
         // TODO - photo and user score is correctly being calculated and updating to the server

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = gson.toJson(me);
                     Log.d("SAVE PREFS", json);
                     prefs.savePreferences("me", json);
+                    prefs.savePreferences("camera", "0");
 
 
 

@@ -11,25 +11,25 @@
     tools:context="com.cs407.around.FeedActivity"
     android:orientation="vertical" >
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:textAlignment="textStart"
-        android:subtitleTextColor="@android:color/white"
-        android:elevation="@dimen/toolbar_elevation" >
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:textAlignment="textStart"
+            android:subtitleTextColor="@android:color/white"
+            android:elevation="@dimen/toolbar_elevation" >
 
 
-    </android.support.v7.widget.Toolbar>
+        </android.support.v7.widget.Toolbar>
 
 
-    
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recycler_view" >
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view" >
+
+        </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

@@ -2,8 +2,10 @@ package com.cs407.around;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.location.Location;
+import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +16,8 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -46,16 +50,20 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     double latitude;
     double longitude;
     boolean isPreview;
+    private ImageButton closeButton;
+    private ImageButton switchCameraButton;
+    private int cameraToOpen;
+    private PreferencesHelper prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        // set up Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
+        // load camera to open from prefs
+        prefs = new PreferencesHelper(getApplicationContext());
+        cameraToOpen = Integer.valueOf(prefs.getPreferences("camera"));
+        Log.d("CAMERA TO OPEN", Integer.toString(cameraToOpen));
 
         isPreview = false;
         surfaceView = (SurfaceView) findViewById(R.id.camera_surface_view);
@@ -63,6 +71,8 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
         surfaceHolder.addCallback((SurfaceHolder.Callback) this);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+
 
         jpegCallback = new Camera.PictureCallback() {
 
@@ -84,11 +94,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 Location l = new Location("here");
                 l.setLatitude(latitude);
                 l.setLongitude(longitude);
-                Location c = new Location("caribou");
-                c.setLongitude(-89.3796855);
-                c.setLatitude(43.0824091);
                 Log.d("LOCATION l", l.toString());
-                Log.d("DISTANCE to caribou", Float.toString(l.distanceTo(c)));
 
                 // create file on phone where photo is stored temporarily
                 File file = new File(getFilesDir(), "/temp_photo");
@@ -111,6 +117,35 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             }
         };
 
+        // handle behavior for the close capture button
+        closeButton = (ImageButton) findViewById(R.id.close_capture_image_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                // Goto feed
+                Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // handle behavior for the switch camera button
+        switchCameraButton = (ImageButton) findViewById(R.id.switch_camera_image_button);
+        switchCameraButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                // save opposite camera to preferences
+                if (cameraToOpen == 0) {
+                    prefs.savePreferences("camera", "1");
+                } else {
+                    prefs.savePreferences("camera", "0");
+                }
+
+                // Reopen camera
+                Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
+                startActivity(intent);
+            }
+        });
+
         // Register Google API Client to be used for Location Services
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -118,28 +153,6 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 .addApi(LocationServices.API)
                 .build();
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_camera_activity, menu);
-        return true;
-    }
-
-    @Override // handle menu item button presses
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            // Open AddEventActivity
-            case R.id.action_close:
-                Intent intent = new Intent(this, com.cs407.around.FeedActivity.class);
-                startActivity(intent);
-
-            default:
-                break;
-        }
-        return true;
     }
 
     public void captureImage(View v) throws IOException {
@@ -174,7 +187,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         try {
-            camera = Camera.open();
+            camera = Camera.open(cameraToOpen);
         } catch (RuntimeException e) {
             System.err.println(e);
             return;
@@ -192,16 +205,19 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
         if (camera == null) {
-            camera.open();
+            camera.open(cameraToOpen);
         }
         Camera.Parameters params = camera.getParameters();
         Camera.Size myBestSize = getBestPreviewSize(width, height, params);
 
         if(myBestSize != null){
 
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            params.setPreviewSize(myBestSize.width, myBestSize.height);
-            params.setPictureSize(myBestSize.width, myBestSize.height);
+            // set params if camera to open is rear-facing
+            if (cameraToOpen == 0) {
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                params.setPreviewSize(myBestSize.width, myBestSize.height);
+                params.setPictureSize(myBestSize.width, myBestSize.height);
+            }
             camera.setDisplayOrientation(90);
             camera.setParameters(params);
             camera.startPreview();
@@ -213,10 +229,15 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    public void onPause() {
+        super.onPause();
         camera.stopPreview();
         camera.release();
-        camera = null;
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
     }
 
     // get best supported camera previw size,
