@@ -94,7 +94,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
          *
          */
 
-        /*
+
         lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
         lastLocation.setLatitude(43.0780441);
@@ -104,7 +104,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
         // get new photos from up to 10 miles away
         getPhotosRetro("time", (long) 16093);
-        */
+
 
         // sort photos by most upvotes
         hotButton.setOnClickListener(new View.OnClickListener() {
@@ -177,19 +177,21 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override // needed for Google Location Services
     public void onConnected(Bundle bundle) {
 
+        /*
         try {
             lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             Log.d("lastLocation", lastLocation.toString());
         } catch (SecurityException e) {
             Log.e("SecurityException", e.toString());
-        }
+        }*/
+
 
         // only set adapter and get photos after current location has been recorded
-        adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
-        recyclerView.setAdapter(adapter);
+        //adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
+        //recyclerView.setAdapter(adapter);
 
         // get new photos from up to 10 miles away
-        getPhotosRetro("time", (long) 16093);
+        //getPhotosRetro("time", (long) 16093);
         newButton.setTextColor(getResources().getColor(R.color.colorBlack));
         newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
     }
