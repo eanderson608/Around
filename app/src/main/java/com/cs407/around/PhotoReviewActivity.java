@@ -59,7 +59,7 @@ public class PhotoReviewActivity extends AppCompatActivity {
         bitmap = bitmap.copy(bitmap.getConfig(), true);
 
         imageView = (ImageView) findViewById(R.id.photo_review_imageview);
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         // view image with picasso
         Picasso.with(this).load(file)

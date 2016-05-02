@@ -217,12 +217,12 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
             // set params if camera to open is rear-facing
             if (cameraToOpen == 0) {
-                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
                 params.setPreviewSize(myBestSize.width, myBestSize.height);
                 params.setPictureSize(myBestSize.width, myBestSize.height);
             }
+
             camera.setDisplayOrientation(90);
-            camera.setParameters(params);
             camera.startPreview();
             isPreview = true;
 

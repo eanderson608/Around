@@ -2,7 +2,7 @@
     <string name="app_name">Around</string>
     <string name="facebook_app_id">453958574808328</string>
 
-    <string name="api_base_url">http://eanderson608.ddns.net/</string>
+    <string name="api_base_url">http://eanderson608.ddns.net</string>
 
     <string name="delete_photo_alert_dialog">Are you sure you want to delete this photo?</string>
     <string name="no_connection_to_server">could not connect to network</string>
