@@ -56,6 +56,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     boolean isPreview;
     private ImageButton closeButton;
     private ImageButton switchCameraButton;
+    private ImageButton captureButton;
     private int cameraToOpen;
     private PreferencesHelper prefs;
 
@@ -80,24 +81,12 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         surfaceHolder.addCallback((SurfaceHolder.Callback) this);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-
+        captureButton = (ImageButton) findViewById(R.id.capture_image_button);
 
         jpegCallback = new Camera.PictureCallback() {
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-
-                // if front-facing-camera rotate image
-                if (cameraToOpen == 1) {
-                    Bitmap photo = BitmapFactory.decodeByteArray(data,0,data.length);
-                    Matrix matrix = new Matrix();
-                    matrix.postRotate(180);
-                    photo = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] data2 = stream.toByteArray();
-                    data = data2;
-                }
 
                 // Get last location
                 try {
@@ -176,6 +165,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     }
 
     public void captureImage(View v) throws IOException {
+        captureButton.setClickable(false);
         camera.takePicture(null, null, jpegCallback);
     }
 
@@ -303,6 +293,12 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     protected void onStart() {
         googleApiClient.connect();
         super.onStart();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        captureButton.setClickable(true);
     }
 
     @Override

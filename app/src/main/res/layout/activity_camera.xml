@@ -37,6 +37,7 @@
         android:padding="@dimen/photo_icon_horizontal_margin" />
 
     <ImageButton
+        android:id="@+id/capture_image_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

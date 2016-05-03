@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -20,6 +21,7 @@ import com.google.gson.Gson;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -39,7 +41,7 @@ public class PhotoReviewActivity extends AppCompatActivity {
     Button button;
     Photo photo;
     User me;
-    SharedPreferences prefs;
+    PreferencesHelper prefs;
     Bitmap bitmap;
     Canvas canvas;
     Paint paint;
@@ -51,6 +53,7 @@ public class PhotoReviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo_review);
 
         button = (Button) findViewById(R.id.save_photo_button);
+        prefs = new PreferencesHelper(this);
 
         // retrieve photo and place in imageView
         File file = new File(this.getFilesDir() + "/temp_photo");
@@ -62,20 +65,30 @@ public class PhotoReviewActivity extends AppCompatActivity {
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         // view image with picasso
-        Picasso.with(this).load(file)
-                .memoryPolicy(MemoryPolicy.NO_CACHE) // do not cache /temp_photo bc it is updated often and we dont want to load the old photo
-                .rotate(90)
-                .error(R.drawable.error)
-                .into(imageView);
+        // if front-facing-camera rotate image
+        String camera = prefs.getPreferences("camera");
+        if (camera.equals("1")) {
+            Picasso.with(this).load(file)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE) // do not cache /temp_photo bc it is updated often and we dont want to load the old photo
+                    .rotate(-90)
+                    .error(R.drawable.error)
+                    .into(imageView);
+        } else {
+            Picasso.with(this).load(file)
+                    .memoryPolicy(MemoryPolicy.NO_CACHE) // do not cache /temp_photo bc it is updated often and we dont want to load the old photo
+                    .rotate(90)
+                    .error(R.drawable.error)
+                    .into(imageView);
+        }
 
 
         // retrieve photo location from intent
         double[] location = getIntent().getDoubleArrayExtra("location");
 
         //Retrieve current user
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         Gson gson = new Gson();
-        String json = prefs.getString("me", "");
+        String json = prefs.getPreferences("me");
+        Log.d("JSON ME", json);
         me = gson.fromJson(json, User.class);
 
         //Create Photo object
