@@ -159,7 +159,6 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
                 // Refresh items
                 photoArrayList.clear();
                 sort = prefs.getPreferences("sort");
-                Log.d("SORT", sort);
                 getPhotosRetro(sort, radius);
                 if (sort.equals("score")) {
                     hotButton.setTextColor(getResources().getColor(R.color.colorBlack));

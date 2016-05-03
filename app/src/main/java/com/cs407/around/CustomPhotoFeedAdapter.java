@@ -133,7 +133,6 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
         Gson gson = new Gson();
         me = gson.fromJson(json, User.class);
 
-
         // set color of upvote/downvote buttons
         if (me.hasDownvoted(photo.get_id())) { // change appearence of downvote button if it has already been downvoted
             int downvoteColor = context.getResources().getColor(R.color.colorDownvote);
@@ -316,6 +315,7 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
 
                                                 // delete the photo
                                                 deletePhotoRetro(photo.get_id(), position);
+
                                             }
                                         })
                                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -377,14 +377,19 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
     // TODO provide an option to display distances in metric?
     private String getDistanceAsString(float distanceInMeters) {
         float distanceInFeet = distanceInMeters * ((float) 3.28084);
-        if (distanceInFeet < 1000) {
+        if (distanceInFeet < 100) {
+            return String.format("less than 100 feet away", distanceInFeet);
+        }
+        else if (distanceInFeet < 1000) {
             if (distanceInFeet == 1) return String.format("%.0f foot away", distanceInFeet);
             else return String.format("%.0f feet away", distanceInFeet);
+        } else {
+            float distanceInMiles = distanceInFeet / 5280;
+            if (Math.round(distanceInMiles * 100.0) / 100.0 == 1)
+                return String.format("%.0f mile away", distanceInMiles);
+            if (distanceInMiles < 3) return String.format("%.2f miles away", distanceInMiles);
+            return String.format("%.0f miles away", distanceInMiles);
         }
-        float distanceInMiles = distanceInFeet / 5280;
-        if (Math.round(distanceInMiles * 100.0) / 100.0 == 1) return String.format("%.0f mile away", distanceInMiles);
-        if (distanceInMiles < 3) return String.format("%.2f miles away", distanceInMiles);
-        return String.format("%.0f miles away", distanceInMiles);
     }
 
     private void incrementPhotoVoteRetro(String id, String field, int amount) {
@@ -456,6 +461,8 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
 
                 if (response.isSuccess()) {
                     Log.d("HTTP_GET_RESPONSE", response.raw().toString());
+                    photoArrayList.remove(position);
+                    notifyItemRemoved(position);
                     Toast.makeText(context, "photo deleted", Toast.LENGTH_LONG).show();
 
                 } else {
