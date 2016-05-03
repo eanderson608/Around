@@ -270,6 +270,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // get key hash
+    // copied from: http://javatechig.com/android/how-to-get-key-hashes-for-android-facebook-app
     public static String printKeyHash(Activity context) {
         PackageInfo packageInfo;
         String key = null;

@@ -62,7 +62,11 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
         // load camera to open from prefs
         prefs = new PreferencesHelper(getApplicationContext());
-        cameraToOpen = Integer.valueOf(prefs.getPreferences("camera"));
+        try {
+            cameraToOpen = Integer.valueOf(prefs.getPreferences("camera"));
+        } catch (Exception e) {
+            cameraToOpen = 0;
+        }
         Log.d("CAMERA TO OPEN", Integer.toString(cameraToOpen));
 
         isPreview = false;
