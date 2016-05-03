@@ -35,5 +35,14 @@
         android:text="feed"
         android:onClick="feedButtonPressed"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EXPLORE"
+        android:id="@+id/explore_button"
+        android:onClick="exploreButtonPressed"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
 
 </RelativeLayout>

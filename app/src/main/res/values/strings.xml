@@ -6,4 +6,5 @@
 
     <string name="delete_photo_alert_dialog">Are you sure you want to delete this photo?</string>
     <string name="no_connection_to_server">could not connect to network</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

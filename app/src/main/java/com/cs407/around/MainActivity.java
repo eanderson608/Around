@@ -208,6 +208,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void exploreButtonPressed(View view) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
     // Upload users profile to remote server to location /uploads/{userId}.jpg
     private void uploadProfilePhoto(Uri uri, final String userId) {
 
