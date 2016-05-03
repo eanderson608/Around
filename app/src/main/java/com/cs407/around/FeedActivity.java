@@ -94,6 +94,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new VerticalSpaceItemDecoration(48));
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -234,7 +235,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
         recyclerView.setAdapter(adapter);
 
-        // get new photos from up to 10 miles away
+        // get new photos
         getPhotosRetro(sort, radius);
         if (sort.equals("score")) {
             hotButton.setTextColor(getResources().getColor(R.color.colorBlack));
