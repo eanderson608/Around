@@ -222,6 +222,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 params.setPictureSize(myBestSize.width, myBestSize.height);
             }
 
+            camera.setParameters(params);
             camera.setDisplayOrientation(90);
             camera.startPreview();
             isPreview = true;

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,16 +47,30 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
     User me;
     PreferencesHelper prefs;
     LinearLayoutManager layoutManager;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private String sort;
+    private long radius;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
 
+        radius = 16093;
+
         prefs = new PreferencesHelper(getApplicationContext());
+
+        // load order feed was last sorted in from preferences
+        try {
+            sort = prefs.getPreferences("sort");
+        } catch (Exception e) {
+            sort = "time";
+        }
 
         hotButton = (Button) findViewById(R.id.sort_by_hot_button);
         newButton = (Button) findViewById(R.id.sort_by_new_button);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         // set up Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -94,6 +109,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
          *
          */
 
+        /*
         lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
         lastLocation.setLatitude(43.0780441);
@@ -103,6 +119,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
         // get new photos from up to 10 miles away
         getPhotosRetro("time", (long) 16093);
+        */
 
 
         // sort photos by most upvotes
@@ -110,7 +127,8 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onClick(View v) {
 
                 photoArrayList.clear();
-                getPhotosRetro("score", (long) 16093);
+                prefs.savePreferences("sort", "score");
+                getPhotosRetro("score", radius);
                 hotButton.setTextColor(getResources().getColor(R.color.colorBlack));
                 hotButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
                 newButton.setTextColor(getResources().getColor(R.color.colorDeselected));
@@ -124,11 +142,36 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
             public void onClick(View v) {
 
                 photoArrayList.clear();
-                getPhotosRetro("time", (long) 16093);
+                prefs.savePreferences("sort", "time");
+                getPhotosRetro("time", radius);
                 newButton.setTextColor(getResources().getColor(R.color.colorBlack));
                 newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
                 hotButton.setTextColor(getResources().getColor(R.color.colorDeselected));
                 hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+                layoutManager.scrollToPosition(0);
+            }
+        });
+
+        // set behavior for swipe to refresh
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                photoArrayList.clear();
+                sort = prefs.getPreferences("sort");
+                Log.d("SORT", sort);
+                getPhotosRetro(sort, radius);
+                if (sort.equals("score")) {
+                    hotButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                    hotButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+                    newButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+                    newButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+                } else {
+                    newButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                    newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+                    hotButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+                    hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+                }
                 layoutManager.scrollToPosition(0);
             }
         });
@@ -157,6 +200,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
                         Log.d("PHOTOS", e.toString());
                         photoArrayList.add(gson.fromJson(e.toString(), Photo.class));
                     }
+                    swipeRefreshLayout.setRefreshing(false);
                     adapter.notifyDataSetChanged();
 
                 } else {
@@ -192,9 +236,18 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         recyclerView.setAdapter(adapter);
 
         // get new photos from up to 10 miles away
-        getPhotosRetro("time", (long) 16093);
-        newButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+        getPhotosRetro(sort, radius);
+        if (sort.equals("score")) {
+            hotButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            hotButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+            newButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+            newButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+        } else {
+            newButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+            hotButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+            hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+        }
     }
 
     @Override // needed for Google Location Services
