@@ -110,17 +110,27 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
          *
          */
 
-        /*
+
         lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
         lastLocation.setLatitude(43.0780441);
         adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
-        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
 
-        // get new photos from up to 10 miles away
-        getPhotosRetro("time", (long) 16093);
-        */
+        // get new photos
+        getPhotosRetro(sort, radius);
+        if (sort.equals("score")) {
+            hotButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            hotButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+            newButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+            newButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+        } else {
+            newButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            newButton.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+            hotButton.setTextColor(getResources().getColor(R.color.colorDeselected));
+            hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+        }
+
 
 
         // sort photos by most upvotes

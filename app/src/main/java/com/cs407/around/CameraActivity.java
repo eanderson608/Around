@@ -3,6 +3,9 @@ package com.cs407.around;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.location.Location;
 import android.media.Image;
@@ -25,6 +28,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -82,6 +86,18 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
+
+                // if front-facing-camera rotate image
+                if (cameraToOpen == 1) {
+                    Bitmap photo = BitmapFactory.decodeByteArray(data,0,data.length);
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(180);
+                    photo = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] data2 = stream.toByteArray();
+                    data = data2;
+                }
 
                 // Get last location
                 try {
