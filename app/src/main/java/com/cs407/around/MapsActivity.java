@@ -1,15 +1,22 @@
 package com.cs407.around;
 
 import android.app.ActivityManager;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Build;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +37,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -122,7 +130,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 .snippet("Photo score: " + e.getScore()));
                         markers.put(marker.getId(), path + e.getFileName());
 
-                        //mMap.setOnInfoWindowClickListener(MapsActivity.this);
+                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                            @Override
+                            public void onInfoWindowClick(Marker marker) {
+                                loadImage(marker);
+                            }
+                        });
                         builder.include(loc);
                         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
                     }
@@ -151,10 +165,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    public void loadImage(Marker marker) {
+        String url = markers.get(marker.getId());
+
+        View view = getLayoutInflater().inflate(R.layout.custom_image_view, null);
+        ImageView img = (ImageView) view.findViewById(R.id.image_full);
+
+        Picasso.with(MapsActivity.this).load(url)
+                .placeholder(R.drawable.grey_placeholder)
+                .into(img);
+
+        Log.d("loadImage", url);
+
+
+    }
+
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(this, "Info window clicked",
-                Toast.LENGTH_SHORT).show();
+        Log.d("", marker.getTitle());
+    }
+
+    public void backClicked(View view) {
+        finish();
+        //getSupportFragmentManager()
+        //        .beginTransaction()
+        //        .remove(getSupportFragmentManager().findFragmentById(R.id.map))
+        //        .commit();
     }
 
 
@@ -270,5 +306,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
 
         ImageLoader.getInstance().init(config);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_explore_activity, menu);
+        return true;
+    }
+
+    @Override // handle menu item button presses
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            // Open Camera
+            case R.id.action_camera:
+                Intent intent = new Intent(this, CameraActivity.class);
+                startActivity(intent);
+                break;
+
+            default:
+                break;
+        }
+        return true;
     }
 }

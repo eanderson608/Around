@@ -98,9 +98,9 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
         lastLocation.setLatitude(43.0780441);
-        adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
-        adapter.setHasStableIds(true);
-        recyclerView.setAdapter(adapter);
+        //adapter = new CustomPhotoFeedAdapter(this, photoArrayList, lastLocation);
+        //adapter.setHasStableIds(true);
+        //recyclerView.setAdapter(adapter);
 
         // get new photos from up to 10 miles away
         getPhotosRetro("time", (long) 16093);
@@ -158,7 +158,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
                         Log.d("PHOTOS", e.toString());
                         photoArrayList.add(gson.fromJson(e.toString(), Photo.class));
                     }
-                    adapter.notifyDataSetChanged();
+                    //adapter.notifyDataSetChanged();
 
                 } else {
                     // error response, no access to resource?
@@ -233,12 +233,25 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override // handle menu item button presses
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
 
             // Open Camera
             case R.id.action_camera:
-                Intent intent = new Intent(this, CameraActivity.class);
+                intent = new Intent(this, CameraActivity.class);
                 startActivity(intent);
+                break;
+
+            // Open Explore
+            case R.id.action_map:
+                intent = new Intent(this, MapsActivity.class);
+                startActivity(intent);
+                break;
+
+            // Open Me
+            case R.id.action_me:
+                //intent = new Intent(this, CameraActivity.class);
+                //startActivity(intent);
                 break;
 
             default:
