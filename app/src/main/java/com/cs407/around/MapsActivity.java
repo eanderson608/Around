@@ -1,26 +1,25 @@
 package com.cs407.around;
 
+import android.Manifest;
 import android.app.ActivityManager;
-import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Build;
-import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,7 +49,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     LatLngBounds.Builder builder;
-    ArrayList<Photo> photoArrayList;
+    DisplayMetrics metrics;
+    int screenHeight;
+    int screenWidth;
 
     private String path = "http://eanderson608.ddns.net/uploads/";
     ImageView imageView;
@@ -67,6 +68,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         builder = new LatLngBounds.Builder();
         imageView = new ImageView(MapsActivity.this);
+
+        metrics = Resources.getSystem().getDisplayMetrics();
+        screenHeight = metrics.heightPixels;
+        screenWidth = metrics.widthPixels;
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -98,6 +103,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter());
 
+        //check permission to see current location
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+        } else {
+            mMap.setMyLocationEnabled(true);
+        }
+
         //CURRENTLY HARD-CODED. SHOULD GET DEVICE'S LOCATION.
         Location lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
@@ -107,9 +126,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void loadPhotosOnMap(Location lastLocation) {
+    private void loadPhotosOnMap(final Location lastLocation) {
 
-        long maxDistance = 16093; // 10 miles in meters, radius to search for photos in
+        long maxDistance = 20037942; // no max distance, loads all photos
+        final long time = System.currentTimeMillis() / 1000;  // current time
+        final long offset = 7889238;  //3 months in millisec
 
         PhotoClient client = ServiceGenerator.createService(PhotoClient.class);
         Call<ArrayList<Photo>> call = client.getPhotos(lastLocation.getLongitude(), lastLocation.getLatitude(), "time", maxDistance);
@@ -124,32 +145,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Log.d("PHOTOS", e.toString());
                         LatLng loc = new LatLng(e.getLocation()[1], e.getLocation()[0]);
 
-                        Marker marker = mMap.addMarker(new MarkerOptions()
-                                .position(loc)
-                                .title(e.getUserName())
-                                .snippet("Photo score: " + e.getScore()));
-                        markers.put(marker.getId(), path + e.getFileName());
+                        //only include image in marker if it is within 3 months
+                        if ( (e.getTime() / 1000) > (time - offset) ) {
 
-                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                            Marker marker = mMap.addMarker(new MarkerOptions()
+                                    .position(loc)
+                                    .title(e.getUserName())
+                                    .snippet("Photo score: " + e.getScore()));
+                            markers.put(marker.getId(), path + e.getFileName());
 
-                            @Override
-                            public void onInfoWindowClick(Marker marker) {
-                                loadImage(marker);
-                            }
-                        });
-                        builder.include(loc);
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
+                            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                                @Override
+                                public void onInfoWindowClick(Marker marker) {
+                                    loadImage(marker);
+                                }
+                            });
+                            //builder.include(loc);
+
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 13));  //adjust camera based on zoom and location
+
+                            //mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));  //adjust camera based on markers
+                        }
                     }
-
 
                 } else {
                     // error response
                     Log.d("ERROR", response.raw().toString());
-                    new AlertDialog.Builder(MapsActivity.this)
-                            .setMessage("Unable to load photos.")
-                            .setPositiveButton("OK",null)
-                            .show();
-
+                    alertError();
                 }
             }
 
@@ -157,26 +181,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onFailure(Call<ArrayList<Photo>> call, Throwable t) {
                 // something went completely south (like no internet connection)
                 Log.d("Error", t.getMessage());
-                new AlertDialog.Builder(MapsActivity.this)
-                        .setMessage("Unable to load photos.")
-                        .setPositiveButton("OK",null)
-                        .show();
+                alertError();
             }
         });
     }
 
+    /**
+     * alert error when image can't load
+     */
+    private void alertError() {
+        new AlertDialog.Builder(MapsActivity.this)
+                .setMessage("Unable to load photos.")
+                .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * load image into alert dialog to display it larger.
+     * @param marker
+     */
     public void loadImage(Marker marker) {
         String url = markers.get(marker.getId());
 
-        View view = getLayoutInflater().inflate(R.layout.custom_image_view, null);
-        ImageView img = (ImageView) view.findViewById(R.id.image_full);
+        ImageView img = new ImageView(this);
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(this).
+                        setMessage("").
+                        setPositiveButton("DONE", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).
+                        setView(img);
+        builder.create().show();
 
         Picasso.with(MapsActivity.this).load(url)
+                .rotate(90)
+                .resize(screenWidth, screenHeight)
+                .centerInside()
+                .error(R.drawable.error)
                 .placeholder(R.drawable.grey_placeholder)
                 .into(img);
 
         Log.d("loadImage", url);
-
 
     }
 
@@ -185,12 +239,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("", marker.getTitle());
     }
 
+    /**
+     * for exiting Explore Fragment Activity
+     * @param view
+     */
     public void backClicked(View view) {
         finish();
-        //getSupportFragmentManager()
-        //        .beginTransaction()
-        //        .remove(getSupportFragmentManager().findFragmentById(R.id.map))
-        //        .commit();
     }
 
 
@@ -228,7 +282,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             public void onLoadingComplete(String imageUri,
                                                           View view, Bitmap loadedImage) {
                                 super.onLoadingComplete(imageUri, view, loadedImage);
-                                //loadedImage = rotateBitmap(loadedImage, 90);
                                 view.setRotation(90);
                                 getInfoContents(MapsActivity.this.marker);
                             }
@@ -269,19 +322,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * rotate bitmap
-     * @param source
-     * @param angle
-     * @return
-     */
-    public static Bitmap rotateBitmap(Bitmap source, float angle)
-    {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
-
-    /**
      * init image loader
      */
     private void initImageLoader() {
@@ -315,19 +355,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return true;
     }
 
-    @Override // handle menu item button presses
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            // Open Camera
-            case R.id.action_camera:
-                Intent intent = new Intent(this, CameraActivity.class);
-                startActivity(intent);
-                break;
-
-            default:
-                break;
-        }
-        return true;
-    }
 }
