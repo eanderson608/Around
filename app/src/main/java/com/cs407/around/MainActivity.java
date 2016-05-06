@@ -202,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccess()) {
                     Log.d("SUCCESS", response.raw().toString());
+                    Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                    startActivity(intent);
 
                 } else {
                     // error response, no access to resource?

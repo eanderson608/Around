@@ -9,6 +9,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -21,6 +23,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -45,13 +50,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
     LatLngBounds.Builder builder;
     DisplayMetrics metrics;
     int screenHeight;
     int screenWidth;
+
+    GoogleApiClient googleApiClient;
+    Location lastLocation;
 
     private String path = "http://eanderson608.ddns.net/uploads/";
     ImageView imageView;
@@ -72,6 +81,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         metrics = Resources.getSystem().getDisplayMetrics();
         screenHeight = metrics.heightPixels;
         screenWidth = metrics.widthPixels;
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        lastLocation = new Location("location");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -118,9 +135,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         //CURRENTLY HARD-CODED. SHOULD GET DEVICE'S LOCATION.
-        Location lastLocation = new Location("location");
-        lastLocation.setLongitude(-89.3864085);
-        lastLocation.setLatitude(43.0780441);
+
+        lastLocation.setLongitude(-89.384497);
+        lastLocation.setLatitude(43.074651);
+
+//        try {
+//            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+//            Log.d("lastLocation", lastLocation.toString());
+//        } catch (SecurityException e) {
+//            Log.e("SecurityException", e.toString());
+//        }
 
         loadPhotosOnMap(lastLocation);
 
@@ -223,7 +247,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         builder.create().show();
 
         Picasso.with(MapsActivity.this).load(url)
-                .rotate(90)
+                //.rotate(90)
                 .resize(screenWidth, screenHeight)
                 .centerInside()
                 .error(R.drawable.error)
@@ -245,6 +269,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     public void backClicked(View view) {
         finish();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 
 
@@ -282,7 +321,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             public void onLoadingComplete(String imageUri,
                                                           View view, Bitmap loadedImage) {
                                 super.onLoadingComplete(imageUri, view, loadedImage);
-                                view.setRotation(90);
+                                //view.setRotation(90);
                                 getInfoContents(MapsActivity.this.marker);
                             }
                         });
