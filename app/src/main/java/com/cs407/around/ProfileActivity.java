@@ -16,6 +16,8 @@ import com.facebook.FacebookException;
 import com.facebook.Profile;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -23,6 +25,8 @@ public class ProfileActivity extends AppCompatActivity {
     TextView userName;
     LoginButton fbLoginButton;
     AccessTokenTracker accessTokenTracker;
+    PreferencesHelper prefs;
+    User me;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +36,19 @@ public class ProfileActivity extends AppCompatActivity {
         userPhoto = (ImageView) findViewById(R.id.user_photo);
         userName = (TextView) findViewById(R.id.user_name);
 
-        //TODO: Load user information into userPhoto and userName
+        // load me from preferences
+        prefs = new PreferencesHelper(this);
+        Gson gson = new Gson();
+        String json = prefs.getPreferences("me");
+        me = gson.fromJson(json, User.class);
+
+        userName.setText(me.getName());
+
+        // Download image with picasso
+        Picasso.with(this).load(me.getUserProfilePic())
+                .error(R.drawable.error)
+                .placeholder(R.drawable.grey_placeholder)
+                .into(userPhoto);
 
         fbLoginButton = (LoginButton) findViewById(R.id.fb_login_button);
 

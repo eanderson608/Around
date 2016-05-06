@@ -9,14 +9,14 @@
         <option name="gradleJvm" value="1.7" />
         <option name="modules">
           <set>
-            <option value="/afs/cs.wisc.edu/u/w/a/wallin/Documents/Proj/Around" />
-            <option value="/afs/cs.wisc.edu/u/w/a/wallin/Documents/Proj/Around/app" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
         <option name="myModules">
           <set>
-            <option value="/afs/cs.wisc.edu/u/w/a/wallin/Documents/Proj/Around" />
-            <option value="/afs/cs.wisc.edu/u/w/a/wallin/Documents/Proj/Around/app" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
       </GradleProjectSettings>

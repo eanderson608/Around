@@ -240,10 +240,9 @@ public class PhotoReviewActivity extends AppCompatActivity {
     private EditText makeTextBox() {
         EditText editText = new EditText(this);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        params.addRule(RelativeLayout.CENTER_VERTICAL);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
         editText.setLayoutParams(params);
-        editText.setTextSize((float) bitmap.getHeight()/20);
+        editText.setTextSize((float) bitmap.getHeight()/25);
         editText.setTextColor(Color.WHITE);
         editText.setBackgroundColor(Color.TRANSPARENT);
         return editText;
@@ -252,36 +251,18 @@ public class PhotoReviewActivity extends AppCompatActivity {
     // Upload photo object and file to remote server
     private void uploadPhoto(final Photo photo) {
 
-        // save image back to temp storage
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(this.getFilesDir() + "/temp_photo");
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-            // PNG is a lossless format, the compression factor (100) is ignored
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         // Assemble request to upload photo FILE
         File file = new File(this.getFilesDir() + "/temp_photo");
-        if (alreadyTextBox) {
-            try {
-                FileOutputStream fos = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 85, fos);
-                fos.flush();
-                fos.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
+
         PhotoClient service = ServiceGenerator.createService(PhotoClient.class);
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         RequestBody fileName = RequestBody.create(MediaType.parse("multipart/form-data"), photo.getFileName());

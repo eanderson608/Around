@@ -182,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
                         getUserRetro(userId, authToken);
                     }
                 }
+
+                Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                startActivity(intent);
+
+
             }
 
             @Override
