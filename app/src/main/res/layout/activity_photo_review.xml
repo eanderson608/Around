@@ -21,38 +21,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="post"
+        android:textSize="30dp"
         android:id="@+id/save_photo_button"
         android:background="@color/colorTransparent"
         android:textColor="@color/colorWhite" />
 
-    <Button
+    <ImageButton
+        android:id="@+id/close_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="close"
-        android:id="@+id/close_button"
+        android:src="@drawable/ic_close_white_48dp"
+        android:background="@android:color/transparent"
+        android:padding="@dimen/photo_icon_horizontal_margin"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:background="@color/colorTransparent"
-        android:textColor="@color/colorWhite" />
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="add text"
+        android:textSize="20dp"
         android:id="@+id/text_button"
         android:background="@color/colorTransparent"
         android:textColor="@color/colorWhite"
-        android:layout_below="@+id/paint_button"
-        android:layout_alignStart="@+id/paint_button" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="paint"
-        android:id="@+id/paint_button"
-        android:textColor="@color/colorWhite"
-        android:background="@color/colorTransparent"
-        android:layout_below="@+id/close_button"
-        android:layout_alignStart="@+id/close_button" />
+        android:layout_marginEnd="43dp"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/close_button" />
 
 </RelativeLayout>

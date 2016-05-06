@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -51,9 +52,9 @@ public class PhotoReviewActivity extends AppCompatActivity {
 
     ImageView imageView;
     Button button;
-    Button closeButton;
+    ImageButton closeButton;
     Button textButton;
-    Button paintButton;
+    //Button paintButton;
     Photo photo;
     User me;
     PreferencesHelper prefs;
@@ -76,9 +77,9 @@ public class PhotoReviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo_review);
 
         button = (Button) findViewById(R.id.save_photo_button);
-        closeButton = (Button) findViewById(R.id.close_button);
+        closeButton = (ImageButton) findViewById(R.id.close_button);
         textButton = (Button) findViewById(R.id.text_button);
-        paintButton = (Button) findViewById(R.id.paint_button);
+        //paintButton = (Button) findViewById(R.id.paint_button);
         layout = (RelativeLayout) findViewById(R.id.relativeLayout);
         alreadyTextBox = false;
         //paintMode = false;
@@ -207,11 +208,11 @@ public class PhotoReviewActivity extends AppCompatActivity {
             }
         });
 
-        paintButton.setOnClickListener(new View.OnClickListener() {
+        /*paintButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //drawView = makeDrawingView();
                 //drawView.makeBitmap(bitmap);
-               /* if (!paintMode) {
+               if (!paintMode) {
                     drawPath = new Path();
                     paint = new Paint();
                     paint.setColor(Color.RED);
@@ -226,9 +227,9 @@ public class PhotoReviewActivity extends AppCompatActivity {
                     paintCanvas.drawBitmap(paintBitmap, 0, 0, canvasPaint);
                     paintCanvas.drawPath(drawPath, paint);
                     paintMode = true;
-                }*/
+                }
             }
-        });
+        });*/
 
     }
 
