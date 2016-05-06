@@ -243,7 +243,8 @@ public class PhotoReviewActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
         editText.setLayoutParams(params);
-        editText.setTextSize((float) bitmap.getHeight()/25);
+        editText.setWidth(bitmap.getWidth());
+        editText.setTextSize((float) bitmap.getWidth()/20);
         editText.setTextColor(Color.WHITE);
         editText.setBackgroundColor(Color.TRANSPARENT);
         return editText;

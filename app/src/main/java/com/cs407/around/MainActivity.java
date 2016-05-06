@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_main);
-        fbInfo = (TextView) findViewById(R.id.fb_info_textview);
         fbLoginButton = (LoginButton) findViewById(R.id.fb_login_button);
 
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
