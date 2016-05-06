@@ -81,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 getUserRetro(loginResult.getAccessToken().getUserId(), loginResult.getAccessToken().getToken());
                 Log.d("FACEBOOK ONSUCCESS", "WHAT");
 
+                Intent intent = new Intent(getApplicationContext(), FeedActivity.class);
+                startActivity(intent);
             }
 
             @Override
