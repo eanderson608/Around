@@ -250,8 +250,8 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
             // Open Me
             case R.id.action_me:
-                //intent = new Intent(this, CameraActivity.class);
-                //startActivity(intent);
+                intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
                 break;
 
             default:
@@ -259,4 +259,5 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         }
         return true;
     }
+
 }
