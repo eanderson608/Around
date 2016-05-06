@@ -148,7 +148,6 @@ public class CustomPhotoFeedAdapter extends RecyclerView.Adapter<CustomPhotoFeed
 
         // Download image with picasso
         Picasso.with(context).load(path + photo.getFileName())
-                .rotate(90)
                 .resize(screenWidth / 2, screenHeight / 2)
                 .centerInside()
                 .error(R.drawable.error)

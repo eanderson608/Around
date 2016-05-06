@@ -110,7 +110,6 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
          *
          */
 
-
         lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
         lastLocation.setLatitude(43.0780441);

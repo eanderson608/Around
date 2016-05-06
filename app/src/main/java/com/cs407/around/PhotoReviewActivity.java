@@ -20,9 +20,11 @@ import android.widget.ImageView;
 import com.google.gson.Gson;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -64,22 +66,39 @@ public class PhotoReviewActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.photo_review_imageview);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        // view image with picasso
-        // if front-facing-camera rotate image
         String camera = prefs.getPreferences("camera");
         if (camera.equals("1")) {
-            Picasso.with(this).load(file)
-                    .memoryPolicy(MemoryPolicy.NO_CACHE) // do not cache /temp_photo bc it is updated often and we dont want to load the old photo
-                    .rotate(-90)
-                    .error(R.drawable.error)
-                    .into(imageView);
+            bitmap = rotateBitmap(bitmap, (float) -90);
         } else {
-            Picasso.with(this).load(file)
-                    .memoryPolicy(MemoryPolicy.NO_CACHE) // do not cache /temp_photo bc it is updated often and we dont want to load the old photo
-                    .rotate(90)
-                    .error(R.drawable.error)
-                    .into(imageView);
+            bitmap = rotateBitmap(bitmap, (float) 90);
         }
+
+        imageView.setImageBitmap(bitmap);
+
+
+
+
+
+
+
+        // save image back to temp storage
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(this.getFilesDir() + "/temp_photo");
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
 
 
         // retrieve photo location from intent
@@ -175,5 +194,14 @@ public class PhotoReviewActivity extends AppCompatActivity {
                 Log.d("Error", t.getMessage());
             }
         });
+    }
+
+    // rotate a bitmap in order to save image as proper orientation
+    // copied from http://stackoverflow.com/questions/9015372/how-to-rotate-a-bitmap-90-degrees
+    public static Bitmap rotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 }
