@@ -10,16 +10,9 @@
         android:title="camera" />
 
     <item
-        android:id="@+id/action_map"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_map"
-        android:title="map" />
-
-    <item
-        android:id="@+id/action_me"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_me"
-        android:title="me" />
+        android:id="@+id/action_settings"
+        android:title="Settings"
+        app:showAsAction="never"/>
 
 
 </menu>

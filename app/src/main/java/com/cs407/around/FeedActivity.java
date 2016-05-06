@@ -130,8 +130,6 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
             hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
         }
 
-
-
         // sort photos by most upvotes
         hotButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -209,8 +207,10 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
                         Log.d("PHOTOS", e.toString());
                         photoArrayList.add(gson.fromJson(e.toString(), Photo.class));
                     }
+
                     swipeRefreshLayout.setRefreshing(false);
                     adapter.notifyDataSetChanged();
+
 
                 } else {
                     // error response, no access to resource?
@@ -257,6 +257,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
             hotButton.setTextColor(getResources().getColor(R.color.colorDeselected));
             hotButton.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
         }
+
     }
 
     @Override // needed for Google Location Services
@@ -296,11 +297,24 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override // handle menu item button presses
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
 
             // Open Camera
             case R.id.action_camera:
-                Intent intent = new Intent(this, CameraActivity.class);
+                intent = new Intent(this, CameraActivity.class);
+                startActivity(intent);
+                break;
+
+            // Open Explore
+            case R.id.action_map:
+                intent = new Intent(this, MapsActivity.class);
+                startActivity(intent);
+                break;
+
+            // Open Me
+            case R.id.action_me:
+                intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);
                 break;
 
@@ -309,4 +323,5 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
         }
         return true;
     }
+
 }

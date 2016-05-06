@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -99,6 +100,11 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         me = gson.fromJson(json, User.class);
 
+        if (isLoggedIn()) {
+            Intent intent = new Intent(this, FeedActivity.class);
+            startActivity(intent);
+        }
+
         /*
 
         // uncomment  below to load camera immediately if user is already logged in
@@ -113,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
             // continue, wait for user to press log in button
         }
         */
+    }
+
+    public boolean isLoggedIn() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
     }
 
     @Override
@@ -213,6 +224,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void feedButtonPressed(View view) {
         Intent intent = new Intent(this, FeedActivity.class);
+        startActivity(intent);
+    }
+
+    public void exploreButtonPressed(View view) {
+        Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 
