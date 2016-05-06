@@ -59,7 +59,6 @@ public class PhotoReviewActivity extends AppCompatActivity {
     PreferencesHelper prefs;
     Bitmap bitmap;
     Bitmap textBitmap;
-    Bitmap combined;
     Canvas canvas;
     RelativeLayout layout;
     EditText textBox;
@@ -103,24 +102,6 @@ public class PhotoReviewActivity extends AppCompatActivity {
         }
 
         imageView.setImageBitmap(bitmap);
-
-        // save image back to temp storage
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(this.getFilesDir() + "/temp_photo");
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-            // PNG is a lossless format, the compression factor (100) is ignored
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
 
         // retrieve photo location from intent
@@ -259,8 +240,10 @@ public class PhotoReviewActivity extends AppCompatActivity {
     private EditText makeTextBox() {
         EditText editText = new EditText(this);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.BELOW, paintButton.getId());
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        params.addRule(RelativeLayout.CENTER_VERTICAL);
         editText.setLayoutParams(params);
+        editText.setTextSize((float) bitmap.getHeight()/20);
         editText.setTextColor(Color.WHITE);
         editText.setBackgroundColor(Color.TRANSPARENT);
         return editText;
@@ -269,12 +252,30 @@ public class PhotoReviewActivity extends AppCompatActivity {
     // Upload photo object and file to remote server
     private void uploadPhoto(final Photo photo) {
 
+        // save image back to temp storage
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(this.getFilesDir() + "/temp_photo");
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+            // PNG is a lossless format, the compression factor (100) is ignored
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         // Assemble request to upload photo FILE
         File file = new File(this.getFilesDir() + "/temp_photo");
         if (alreadyTextBox) {
             try {
                 FileOutputStream fos = new FileOutputStream(file);
-                combined.compress(Bitmap.CompressFormat.PNG, 85, fos);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 85, fos);
                 fos.flush();
                 fos.close();
             } catch (Exception ex) {
@@ -349,10 +350,10 @@ public class PhotoReviewActivity extends AppCompatActivity {
         //matrix.setRotate(90, bitmap2.getWidth()/2, bitmap2.getHeight()/2);
         //Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap2, 0, 0, bitmap2.getWidth(), bitmap2.getHeight(), matrix, true);
         //Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap2.getWidth(), bitmap2.getHeight(), bitmap2.getConfig());
-        combined = Bitmap.createBitmap(bitmap1.getWidth(), bitmap1.getHeight(), bitmap1.getConfig());
+        Bitmap combined = Bitmap.createBitmap(bitmap1.getWidth(), bitmap1.getHeight(), bitmap1.getConfig());
         canvas = new Canvas(combined);
         canvas.drawBitmap(bitmap1, new Matrix(), null);
-        canvas.drawBitmap(bitmap2, 0, 0, new Paint());
+        canvas.drawBitmap(bitmap2, textBox.getX(), textBox.getY(), new Paint());
 
         /*Bitmap targetBitmap = Bitmap.createBitmap(targetWidth, targetHeight, config);
         Canvas canvas = new Canvas(targetBitmap);
