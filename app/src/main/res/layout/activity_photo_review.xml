@@ -8,7 +8,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.cs407.around.PhotoReviewActivity">
+    tools:context="com.cs407.around.PhotoReviewActivity"
+    android:id="@+id/relativeLayout">
 
     <ImageView
         android:id="@+id/photo_review_imageview"
@@ -19,7 +20,39 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="store"
-        android:id="@+id/save_photo_button" />
+        android:text="post"
+        android:id="@+id/save_photo_button"
+        android:background="@color/colorTransparent"
+        android:textColor="@color/colorWhite" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="close"
+        android:id="@+id/close_button"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="@color/colorTransparent"
+        android:textColor="@color/colorWhite" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add text"
+        android:id="@+id/text_button"
+        android:background="@color/colorTransparent"
+        android:textColor="@color/colorWhite"
+        android:layout_below="@+id/paint_button"
+        android:layout_alignStart="@+id/paint_button" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="paint"
+        android:id="@+id/paint_button"
+        android:textColor="@color/colorWhite"
+        android:background="@color/colorTransparent"
+        android:layout_below="@+id/close_button"
+        android:layout_alignStart="@+id/close_button" />
 
 </RelativeLayout>

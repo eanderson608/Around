@@ -94,7 +94,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
          *
          */
 
-        /*
+
         lastLocation = new Location("location");
         lastLocation.setLongitude(-89.3864085);
         lastLocation.setLatitude(43.0780441);
@@ -104,7 +104,7 @@ public class FeedActivity extends AppCompatActivity implements GoogleApiClient.C
 
         // get new photos from up to 10 miles away
         getPhotosRetro("time", (long) 16093);
-        */
+
 
         // sort photos by most upvotes
         hotButton.setOnClickListener(new View.OnClickListener() {
